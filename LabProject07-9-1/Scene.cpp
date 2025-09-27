@@ -119,13 +119,16 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pApacheObject->Rotate(0.0f, 90.0f, 0.0f);
 	m_ppGameObjects[0] = pApacheObject;
 
-	pApacheObject = new CApacheObject();
-	pApacheObject->SetChild(pApacheModel, true);
-	pApacheObject->OnInitialize();
-	pApacheObject->SetPosition(-75.0f, 0.0f, 80.0f);
-	pApacheObject->SetScale(1.5f, 1.5f, 1.5f);
-	pApacheObject->Rotate(0.0f, -90.0f, 0.0f);
-	m_ppGameObjects[1] = pApacheObject;
+	CGameObject* pApacheModel2 = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Apache.bin");
+	CApacheObject* pApacheObject2 = NULL;
+
+	pApacheObject2 = new CApacheObject();
+	pApacheObject2->SetChild(pApacheModel2, true);
+	pApacheObject2->OnInitialize();
+	pApacheObject2->SetPosition(-75.0f, 0.0f, 80.0f);
+	pApacheObject2->SetScale(1.5f, 1.5f, 1.5f);
+	pApacheObject2->Rotate(0.0f, -90.0f, 0.0f);
+	m_ppGameObjects[1] = pApacheObject2;
 
 	CGameObject *pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, m_pd3dGraphicsRootSignature, "Model/Gunship.bin");
 	CGunshipObject* pGunshipObject = NULL;
