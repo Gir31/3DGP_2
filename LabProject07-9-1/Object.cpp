@@ -190,11 +190,13 @@ void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphics
 
 	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
 
-	// Descriptor View 持失
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = m_pd3dcbGameObject->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = ncbBytes;
-	pd3dDevice->CreateConstantBufferView(&cbvDesc, m_d3dCbvCPUDescriptorHandle);
+	if (m_d3dCbvCPUDescriptorHandle.ptr) {
+		// Descriptor View 持失
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = m_pd3dcbGameObject->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes = ncbBytes;
+		pd3dDevice->CreateConstantBufferView(&cbvDesc, m_d3dCbvCPUDescriptorHandle);
+	}
 }
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)

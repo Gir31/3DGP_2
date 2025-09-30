@@ -179,10 +179,17 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	pTankObject->Rotate(0.0f, -90.0f, 0.0f);
 	m_ppGameObjects[6] = pTankObject;
 
+	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature());
+	pAirplanePlayer->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	m_pPlayer = pAirplanePlayer;
+
 	for (int i = 0; i < m_nGameObjects; i++) {
 		AssignCbvRecursive(m_ppGameObjects[i], pd3dDevice, pd3dCommandList,
 			d3dCPUHandle, d3dGPUHandle, nIncrementSize);
 	}
+
+	AssignCbvRecursive(pAirplanePlayer, pd3dDevice, pd3dCommandList,
+		d3dCPUHandle, d3dGPUHandle, nIncrementSize);
 
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
