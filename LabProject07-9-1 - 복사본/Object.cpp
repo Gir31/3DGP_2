@@ -171,8 +171,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 					if (m_ppMaterials[i]->m_pShader) 
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 				}
-
-				pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
 				pd3dCommandList->SetGraphicsRoot32BitConstant(4, 0, 0);
 				if (m_pMesh) m_pMesh->Render(pd3dCommandList, i, nInstances);
 			}
@@ -190,7 +188,6 @@ void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pC
 						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
 				}
 
-				pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
 				pd3dCommandList->SetGraphicsRoot32BitConstant(4, 1, 0);
 				if (m_pMesh) m_pMesh->Render(pd3dCommandList, i, nInstances);
 			}
@@ -207,9 +204,7 @@ void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphics
 	UINT ncbBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
 
 	m_pd3dcbGameObject = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbBytes,
-		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
-
-	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
 
 	if (m_d3dCbvCPUDescriptorHandle.ptr) {
 		// Descriptor View »ý¼º
@@ -218,6 +213,9 @@ void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12Graphics
 		cbvDesc.SizeInBytes = ncbBytes;
 		pd3dDevice->CreateConstantBufferView(&cbvDesc, m_d3dCbvCPUDescriptorHandle);
 	}
+
+
+	m_pd3dcbGameObject->Map(0, NULL, (void**)&m_pcbMappedGameObject);
 }
 
 void CGameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)

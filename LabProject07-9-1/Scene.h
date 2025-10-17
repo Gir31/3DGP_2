@@ -37,6 +37,11 @@ struct LIGHTS
 	int						m_nLights;
 };
 
+struct VS_VB_INSTANCE
+{
+	XMFLOAT4X4 Instance_matrix;
+};
+
 class CScene
 {
 public:
@@ -92,4 +97,8 @@ public:
 		D3D12_CPU_DESCRIPTOR_HANDLE& d3dCPUHandle,
 		D3D12_GPU_DESCRIPTOR_HANDLE& d3dGPUHandle,
 		UINT nIncrementSize);
+
+	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
+	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dInstancingSrvGpuHandle = { 0 };
+	std::vector<VS_VB_INSTANCE> Instance_data;
 };

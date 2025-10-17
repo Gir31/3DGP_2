@@ -155,30 +155,48 @@ CGameObject *CGameObject::FindFrame(char *pstrFrameName)
 	return(NULL);
 }
 
-void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, UINT nInstances)
 {
 	OnPrepareRender();
 
 	UpdateShaderVariables(pd3dCommandList);
 
-	if (m_nMaterials > 0)
-	{
-		for (int i = 0; i < m_nMaterials; i++)
+	if (nInstances == 1) {
+		if (m_nMaterials > 0)
 		{
-			if (m_ppMaterials[i])
+			for (int i = 0; i < m_nMaterials; i++)
 			{
-				if (m_ppMaterials[i]->m_pShader) m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
-				//m_ppMaterials[i]->UpdateShaderVariable(pd3dCommandList);
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				}
+				pd3dCommandList->SetGraphicsRoot32BitConstant(4, 0, 0);
+				if (m_pMesh) m_pMesh->Render(pd3dCommandList, i, nInstances);
 			}
+		}
+	}
+	else
+	{
+		if (m_nMaterials > 0)
+		{
+			for (int i = 0; i < m_nMaterials; i++)
+			{
+				if (m_ppMaterials[i])
+				{
+					if (m_ppMaterials[i]->m_pShader)
+						m_ppMaterials[i]->m_pShader->Render(pd3dCommandList, pCamera);
+				}
 
-			pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
-
-			if (m_pMesh) m_pMesh->Render(pd3dCommandList, i);
+				pd3dCommandList->SetGraphicsRoot32BitConstant(4, 1, 0);
+				if (m_pMesh) m_pMesh->Render(pd3dCommandList, i, nInstances);
+			}
 		}
 	}
 
-	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera);
-	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera);
+
+	if (m_pSibling) m_pSibling->Render(pd3dCommandList, pCamera, nInstances);
+	if (m_pChild) m_pChild->Render(pd3dCommandList, pCamera, nInstances);
 }
 
 void CGameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -682,9 +700,9 @@ void CRotatingObject::Animate(float fTimeElapsed, XMFLOAT4X4 *pxmf4x4Parent)
 	CGameObject::Animate(fTimeElapsed, pxmf4x4Parent);
 }
 
-void CRotatingObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+void CRotatingObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, UINT nInstances)
 {
-	CGameObject::Render(pd3dCommandList, pCamera);
+	CGameObject::Render(pd3dCommandList, pCamera, nInstances);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

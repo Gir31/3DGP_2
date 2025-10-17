@@ -82,7 +82,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////
 	// INSTANCE
-	CGameObject					**inst_ppGameObjects = NULL;
+	CGameObject					*inst_ppGameObjects = NULL;
 	int							inst_nGameObjects = 0;
 
 	ID3D12Resource* m_pd3dcbGameObjects = nullptr;
@@ -101,6 +101,7 @@ public:
 
 public:
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
+	ID3D12DescriptorHeap* m_pd3dSrvDescriptorHeap = NULL;
 
 	UINT m_nCbvSrvDescriptorIndex = 0; // ¥Ÿ¿Ω ∫Û ΩΩ∑‘ ¿Œµ¶Ω∫
 
@@ -111,8 +112,7 @@ public:
 		D3D12_GPU_DESCRIPTOR_HANDLE& d3dGPUHandle,
 		UINT nIncrementSize);
 
-	void DebugPrintHierarchyMatrix(CGameObject* pObject, int depth);
-
 	D3D12_GPU_DESCRIPTOR_HANDLE m_d3dInstancingSrvGpuHandle = { 0 };
 
+	std::vector< VS_VB_INSTANCE> Instance_data;
 };

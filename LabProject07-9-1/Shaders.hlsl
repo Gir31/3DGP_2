@@ -19,6 +19,18 @@ cbuffer cbGameObjectInfo : register(b2)
 	MATERIAL				gMaterial : packoffset(c4);
 };
 
+cbuffer cbRenderMode : register(b3)
+{
+    bool is_Instancing;
+}
+
+struct INSTANCEDGAMEOBJECTINFO
+{
+    matrix GameObejct_matrix;
+};
+
+StructuredBuffer<INSTANCEDGAMEOBJECTINFO> gGameObjectInfos : register(t0);
+
 #include "Light.hlsl"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,12 +54,23 @@ struct VS_LIGHTING_OUTPUT
 #endif
 };
 
-VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input)
+VS_LIGHTING_OUTPUT VSLighting(VS_LIGHTING_INPUT input, uint nInstanceID : SV_InstanceID)
 {
 	VS_LIGHTING_OUTPUT output;
+	
+    matrix world;
+	
+	if (is_Instancing)
+    {
+        world = mul(gmtxGameObject, gGameObjectInfos[nInstanceID].GameObejct_matrix);
+    }
+    else
+    {
+        world = gmtxGameObject;
+    }
 
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.normalW = mul(input.normal, (float3x3)world);
+	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 #ifdef _WITH_VERTEX_LIGHTING
 	output.normalW = normalize(output.normalW);
