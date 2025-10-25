@@ -108,9 +108,9 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 	m_ppGameObjects = new CGameObject * [m_nGameObjects];
 
 	// INSTANCE
-	int xObjects = 20, yObjects = 20, zObjects = 20, inst = 0;
+	int xObjects = 25, yObjects = 25, zObjects = 25;
 	inst_nGameObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
-	inst_ppGameObjects = new CGameObject();
+	inst_ppGameObjects = new CM26Object();
 
 	float fxPitch = 200.0f * 2.5f;
 	float fyPitch = 200.0f * 2.5f;
@@ -129,6 +129,7 @@ void CScene::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* p
 				XMMATRIX Scaling = XMMatrixScaling(18.f, 18.f, 18.f);
 				XMMATRIX Rotation = XMMatrixRotationY(90.f);
 				XMMATRIX Translation = XMMatrixTranslation(fxPitch * x, fyPitch * y, fzPitch * z);
+				//XMMATRIX Translation = XMMatrixTranslation(0,0,0);
 				XMMATRIX WorldMatrix = Scaling * Rotation * Translation;
 
 				VS_VB_INSTANCE data{};
@@ -200,7 +201,7 @@ void CScene::ReleaseObjects()
 	if (inst_ppGameObjects)
 	{
 		if (inst_ppGameObjects) inst_ppGameObjects->Release();
-		delete[] inst_ppGameObjects;
+		//delete[] inst_ppGameObjects;
 	}
 
 	ReleaseShaderVariables();
@@ -280,7 +281,7 @@ void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
 
-	UINT bytes = (UINT)(((sizeof(VS_VB_INSTANCE) + 255) & ~255) * inst_nGameObjects);
+	UINT bytes = (UINT)(sizeof(VS_VB_INSTANCE)* inst_nGameObjects);
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, Instance_data.data(),
 		bytes,D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, NULL);
 
