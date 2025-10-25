@@ -1,54 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\Scene.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:Scene.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\GameFramework.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:GameFramework.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Scene.cpp",
-              "DocumentMoniker": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\Scene.cpp",
-              "RelativeDocumentMoniker": "Scene.cpp",
-              "ToolTip": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\Scene.cpp",
-              "RelativeToolTip": "Scene.cpp",
-              "ViewState": "AgIAAFQAAAAAAAAAAAAAAGcAAABtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-10-25T10:16:28.897Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "GameFramework.cpp",
-              "DocumentMoniker": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\GameFramework.cpp",
-              "RelativeDocumentMoniker": "GameFramework.cpp",
-              "ToolTip": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8\\GameFramework.cpp",
-              "RelativeToolTip": "GameFramework.cpp",
-              "ViewState": "AgIAACIAAAAAAAAAAAAAACIAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-10-25T10:29:24.027Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }
