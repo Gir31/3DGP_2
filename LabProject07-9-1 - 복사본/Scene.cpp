@@ -254,7 +254,6 @@ ID3D12RootSignature* CScene::CreateGraphicsRootSignature(ID3D12Device* pd3dDevic
 	pd3dRootParameters[4].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
@@ -297,16 +296,7 @@ void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 
 void CScene::UpdateInstanceShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (!m_pcbMappedGameObjects || !inst_ppGameObjects || inst_nGameObjects <= 0) return;
 
-	/*for (int i = 0; i < inst_nGameObjects; ++i)
-	{
-		inst_ppGameObjects[i]->UpdateTransform(NULL);
-		XMStoreFloat4x4(
-			&m_pcbMappedGameObjects[i].m_xmf4x4World,
-			XMMatrixTranspose(XMLoadFloat4x4(&Instance_data[i]->m_xmf4x4World))
-		);
-	}*/
 }
 
 void CScene::FillInstanceRecursive(CGameObject* pObject, int& index)
