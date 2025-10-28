@@ -60,22 +60,22 @@ public:
 	void FillInstanceRecursive(CGameObject* pObject, int& index);
 
 	virtual void BuildDefaultLightsAndMaterials();
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void ReleaseObjects();
 
-	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
+	/*ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }*/
 
 	virtual bool ProcessInput(UCHAR *pKeysBuffer);
 	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
 
 	virtual void ReleaseUploadBuffers();
 
 	CPlayer						*m_pPlayer = NULL;
 
 public:
-	ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
+	//ID3D12RootSignature			*m_pd3dGraphicsRootSignature = NULL;
 
 	CGameObject					**m_ppGameObjects = NULL;
 	int							m_nGameObjects = 0;

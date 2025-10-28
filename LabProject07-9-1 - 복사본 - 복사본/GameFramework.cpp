@@ -403,11 +403,11 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
-	m_GameLevelManager = new GameLevelManager();
+	m_GameLevelManager = new GameLevelManager(m_pd3dDevice);
 	if (m_GameLevelManager->GetCurrentLevel()) m_GameLevelManager->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
 	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, 
-	m_GameLevelManager->GetCurrentLevel()->GetGraphicsRootSignature());
+	m_GameLevelManager->GetGraphicsRootSignature());
 	pAirplanePlayer->SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
 	m_pPlayer = m_GameLevelManager->GetCurrentLevel()->m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
@@ -545,7 +545,7 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_GameLevelManager->GetCurrentLevel()) 
-		m_GameLevelManager->GetCurrentLevel()->Render(m_pd3dCommandList, m_pCamera);
+		m_GameLevelManager->GetCurrentLevel()->Render(m_pd3dCommandList, m_pCamera, m_GameLevelManager->GetGraphicsRootSignature());
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

@@ -6,11 +6,13 @@
 class GameLevelManager
 {
 public:
-	GameLevelManager();
+	GameLevelManager(ID3D12Device* pd3dDevice);
 	~GameLevelManager();
 
 public:
-	CScene levelArray[3];
+	ID3D12RootSignature* m_pd3dGraphicsRootSignature = NULL;
+
+	CScene *levelArray[3];
 	CPlayer player[3];
 	//CCamera* m_pCamera = NULL;
 
@@ -18,13 +20,17 @@ public:
 	int nextLevel;
 
 public:
-	CScene* GetCurrentLevel() { return &levelArray[currentLevel]; }
+	ID3D12RootSignature* CreateGraphicsRootSignature(ID3D12Device* pd3dDevice);
+	ID3D12RootSignature* GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }
+
+	CScene* GetCurrentLevel() { return levelArray[currentLevel]; }
 	CPlayer* GetCurrentPlayer() { return &player[currentLevel]; }
 
 	void SetCurrentLevel(int level) { currentLevel = level; }
 	void SetNextLevel(int level) { nextLevel = level; }
 
 	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void ReleaseScene();
 	void ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 };
 
