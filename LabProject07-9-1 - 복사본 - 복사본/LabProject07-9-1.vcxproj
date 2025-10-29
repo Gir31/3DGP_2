@@ -143,6 +143,7 @@
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameLevelManager.h" />
     <ClInclude Include="LabProject07-9-1.h" />
+    <ClInclude Include="Level.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Player.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameLevelManager.cpp" />
     <ClCompile Include="LabProject07-9-1.cpp" />
+    <ClCompile Include="Level.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />

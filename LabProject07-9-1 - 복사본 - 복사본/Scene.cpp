@@ -199,7 +199,6 @@ void CScene::ReleaseObjects()
 	if (inst_ppGameObjects)
 	{
 		if (inst_ppGameObjects) inst_ppGameObjects->Release();
-		//delete[] inst_ppGameObjects;
 	}
 
 	Instance_data.clear();

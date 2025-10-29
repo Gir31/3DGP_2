@@ -2,17 +2,22 @@
 #include "Player.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Level.h"
 #include "GameLevelManager.h"
 
 GameLevelManager::GameLevelManager(ID3D12Device* pd3dDevice)
 {
-	m_pd3dGraphicsRootSignature = NULL;
+	m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
 
 	for (int i = 0; i < 3; i++)
 	{
 		player[i] = CPlayer();
-		levelArray[i] = new CScene();
+		//levelArray[i] = new CScene();
 	}
+
+	levelArray[0] = new MainLevel();
+	levelArray[1] = new MainLevel();
+	levelArray[2] = new MainLevel();
 
 	currentLevel = 0;
 	nextLevel = -1;
@@ -96,8 +101,6 @@ ID3D12RootSignature* GameLevelManager::CreateGraphicsRootSignature(ID3D12Device*
 
 void GameLevelManager::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if(m_pd3dGraphicsRootSignature == NULL) m_pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 	char debugMsg[128];
 	sprintf_s(debugMsg, "BuildObjects() completed for Level %d\n", currentLevel);
 	OutputDebugStringA(debugMsg);

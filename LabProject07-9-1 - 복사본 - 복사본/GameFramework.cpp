@@ -322,6 +322,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 					break;
 				case VK_F4:
+					WaitForGpuComplete();
 					m_GameLevelManager->SetNextLevel((m_GameLevelManager->currentLevel + 1) % 3);
 					m_GameLevelManager->ChangeLevel(m_pd3dDevice, m_pd3dCommandList);
 					break;

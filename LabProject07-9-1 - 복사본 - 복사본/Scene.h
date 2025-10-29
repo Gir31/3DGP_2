@@ -63,14 +63,13 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual void ReleaseObjects();
 
-	/*ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_pd3dGraphicsRootSignature); }*/
-
-	virtual bool ProcessInput(UCHAR *pKeysBuffer);
+	bool ProcessInput(UCHAR *pKeysBuffer);
 	virtual void AnimateObjects(float fTimeElapsed);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
 
 	virtual void ReleaseUploadBuffers();
+
+	virtual void Reset() {}
 
 	CPlayer						*m_pPlayer = NULL;
 
@@ -102,8 +101,6 @@ public:
 public:
 	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
 	ID3D12DescriptorHeap* m_pd3dSrvDescriptorHeap = NULL;
-
-	UINT m_nCbvSrvDescriptorIndex = 0; // ¥Ÿ¿Ω ∫Û ΩΩ∑‘ ¿Œµ¶Ω∫
 
 	void AssignCbvRecursive(CGameObject* pObject,
 		ID3D12Device* pd3dDevice,
