@@ -306,6 +306,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
 	if (m_GameLevelManager->GetCurrentLevel()) m_GameLevelManager->GetCurrentLevel()->OnProcessingKeyboardMessage(hWnd, nMessageID, wParam, lParam);
+	
 	switch (nMessageID)
 	{
 		case WM_KEYUP:
@@ -322,10 +323,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_pCamera = m_pPlayer->ChangeCamera((DWORD)(wParam - VK_F1 + 1), m_GameTimer.GetTimeElapsed());
 					break;
 				case VK_F4:
-					WaitForGpuComplete();
+				{
 					m_GameLevelManager->SetNextLevel((m_GameLevelManager->currentLevel + 1) % 3);
-					m_GameLevelManager->ChangeLevel(m_pd3dDevice, m_pd3dCommandList);
+					m_GameLevelManager->ChangeLevel(m_pd3dDevice, m_pd3dCommandList, m_pd3dCommandQueue, m_pd3dCommandAllocator);
+					WaitForGpuComplete();
 					break;
+				}
 				case VK_F9:
 					ChangeSwapChainState();
 					break;

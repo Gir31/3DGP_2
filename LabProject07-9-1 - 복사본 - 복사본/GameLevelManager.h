@@ -31,6 +31,7 @@ public:
 
 	void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void ReleaseScene();
-	void ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+		ID3D12CommandQueue* pd3dCommandQueue, ID3D12CommandAllocator* pd3dCommandAllocator);
 };
 

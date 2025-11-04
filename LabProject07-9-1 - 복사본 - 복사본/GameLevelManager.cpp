@@ -114,8 +114,13 @@ void GameLevelManager::ReleaseScene()
 	levelArray[currentLevel]->ReleaseObjects();
 }
 
-void GameLevelManager::ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void GameLevelManager::ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+	ID3D12CommandQueue* pd3dCommandQueue, ID3D12CommandAllocator* pd3dCommandAllocator)
 {
+	// 커맨드리스트 초기화
+	pd3dCommandList->Reset(pd3dCommandAllocator, NULL);
+
+	// 오브젝트 초기화
 	ReleaseScene();
 
 	// 변경 전후 출력
@@ -123,8 +128,13 @@ void GameLevelManager::ChangeLevel(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 	sprintf_s(debugMsg, "ChangeLevel() called: from Level %d to Level %d\n", currentLevel, nextLevel);
 	OutputDebugStringA(debugMsg); // Visual Studio의 Output 창에 출력됨
 
+	// 레벨 변경
 	currentLevel = nextLevel;
 
 	// 새 레벨 빌드
 	BuildObjects(pd3dDevice, pd3dCommandList);
+
+	pd3dCommandList->Close();
+	ID3D12CommandList* ppd3dCommandLists[] = { pd3dCommandList };
+	pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
 }
