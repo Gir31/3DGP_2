@@ -1,7 +1,4 @@
-﻿  GameFramework.cpp
-  코드를 생성하고 있습니다.
-  4 of 477 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
-    1 functions were new in current compilation
-    9 functions had inline decision re-evaluated but remain unchanged
-  코드를 생성했습니다.
-  LabProject07-9-1.vcxproj -> C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\LabProject07-9-1 - 복사본 - 복사본\x64\Release\LabProject07-9-1.exe
+﻿  DDSTextureLoader12.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\LabProject07-9-1 - 복사본 - 복사본\d3dx12.h(15,10): error C1083: 포함 파일을 열 수 없습니다. 'd3dx12_barriers.h': No such file or directory
+  (소스 파일 '/DDSTextureLoader12.cpp'을(를) 컴파일하는 중)
+  
