@@ -332,11 +332,8 @@ public:
 class CGrassObject : public CGameObject
 {
 public:
-	CGrassObject();
+	CGrassObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CGrassObject();
 
-	virtual void Animate(float fDeltaTime);
-
-	float m_fRotationAngle = 0.0f;
-	float m_fRotationDelta = 1.0f;
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
 };

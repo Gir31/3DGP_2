@@ -737,3 +737,53 @@ void CHeightMapGridMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int 
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+CPointMesh::CPointMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth, float fHeight, float fDepth) : CMesh(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 1;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+	m_pxmf3Positions = new XMFLOAT3[m_nVertices];
+	m_pxmf3Positions[0] = XMFLOAT3(920.0f, 745.0f, 2000.0);
+
+	XMFLOAT2* size = new XMFLOAT2(100.f, 100.f);
+
+	m_pd3dPositionBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, 
+		m_pxmf3Positions, sizeof(XMFLOAT3), 
+		D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, 
+		&m_pd3dPositionUploadBuffer);
+	m_d3dPositionBufferView.BufferLocation = m_pd3dPositionBuffer->GetGPUVirtualAddress();
+	m_d3dPositionBufferView.StrideInBytes = sizeof(XMFLOAT3);
+	m_d3dPositionBufferView.SizeInBytes = sizeof(XMFLOAT3);
+
+	m_pd3dSizeBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, 
+		size, sizeof(XMFLOAT2),
+		D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, 
+		&m_pd3dSizeUploadBuffer);
+	m_d3dSizeBufferView.BufferLocation = m_pd3dSizeBuffer->GetGPUVirtualAddress();
+	m_d3dSizeBufferView.StrideInBytes = sizeof(XMFLOAT2);
+	m_d3dSizeBufferView.SizeInBytes = sizeof(XMFLOAT2);
+}
+
+CPointMesh::~CPointMesh()
+{
+}
+
+void CPointMesh::ReleaseUploadBuffers()
+{
+	CMesh::ReleaseUploadBuffers();
+	if (m_pd3dSizeUploadBuffer) m_pd3dSizeUploadBuffer->Release();
+}
+
+void CPointMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet)
+{
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	D3D12_VERTEX_BUFFER_VIEW pVertexBufferViews[2] = {
+		m_d3dPositionBufferView, m_d3dSizeBufferView
+	};
+	pd3dCommandList->IASetVertexBuffers(0, 2, pVertexBufferViews);
+
+	pd3dCommandList->DrawInstanced(1, 1, 0, 0);
+}

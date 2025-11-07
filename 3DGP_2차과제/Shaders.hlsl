@@ -244,7 +244,7 @@ Texture2D gBillboardTexture : register(t17);
 
 struct VS_BILLBOARD_IN
 {
-    float3 posW : POSITIONT;
+    float3 posW : POSITION;
     float2 sizeW : SIZE;
 };
 
@@ -306,12 +306,14 @@ void GSBillboard(point VS_BILLBOARD_OUT input[1], uint primID : SV_PrimitiveID, 
 
 float4 PSBillboard(GS_BILLBOARD_OUT input) : SV_Target
 {
-    float4 clllumination = Lighting(input.posW, input.normalW);
-    float2 uv = input.uv;
-    float4 cTexture = gBillboardTexture.Sample(gssWrap, uv);
-    float4 cColor = clllumination * cTexture;
+    //float4 clllumination = Lighting(input.posW, input.normalW);
+    float4 cTexture = gBillboardTexture.Sample(gssWrap, input.uv);
+   // float4 cColor = clllumination * cTexture;
+    float4 cColor = cTexture;
 	
     cColor.a = cTexture.a;
+	
+    clip(cColor.a - 0.3f);
 	
     return (cColor);
 }

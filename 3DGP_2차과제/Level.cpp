@@ -292,6 +292,7 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	BuildDefaultLightsAndMaterials();
 
 	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_pGrass = new CGrassObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
@@ -328,6 +329,7 @@ void MainLevel::ReleaseObjects()
 
 	if (m_pTerrain) delete m_pTerrain;
 	if (m_pSkyBox) delete m_pSkyBox;
+	if (m_pGrass) delete m_pGrass;
 
 	if (m_ppGameObjects)
 	{
@@ -363,12 +365,14 @@ void MainLevel::ReleaseShaderVariables()
 
 	if (m_pTerrain) m_pTerrain->ReleaseShaderVariables();
 	if (m_pSkyBox) m_pSkyBox->ReleaseShaderVariables();
+	if (m_pGrass) m_pGrass->ReleaseShaderVariables();
 }
 
 void MainLevel::ReleaseUploadBuffers()
 {
 	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
 	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
+	if (m_pGrass) m_pGrass->ReleaseUploadBuffers();
 
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
@@ -431,6 +435,7 @@ void MainLevel::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCam
 
 	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
 	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
+	if (m_pGrass) m_pGrass->Render(pd3dCommandList, pCamera);
 
 	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);

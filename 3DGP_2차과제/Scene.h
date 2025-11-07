@@ -97,7 +97,8 @@ public:
 	CShader								**m_ppShaders = NULL;
 
 	CSkyBox								*m_pSkyBox = NULL;
-	CHeightMapTerrain*					m_pTerrain = NULL;
+	CHeightMapTerrain					*m_pTerrain = NULL;
+	CGrassObject						*m_pGrass = NULL;
 
 	LIGHT								*m_pLights = NULL;
 	int									m_nLights = 0;

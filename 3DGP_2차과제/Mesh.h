@@ -217,3 +217,20 @@ public:
 	virtual float OnGetHeight(int x, int z, void* pContext);
 	virtual XMFLOAT4 OnGetColor(int x, int z, void* pContext);
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+class CPointMesh : public CMesh
+{
+protected:
+	ID3D12Resource* m_pd3dSizeBuffer = NULL;
+	ID3D12Resource* m_pd3dSizeUploadBuffer = NULL;
+	D3D12_VERTEX_BUFFER_VIEW	m_d3dSizeBufferView;
+
+public:
+	CPointMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 20.0f);
+	virtual ~CPointMesh();
+
+	virtual void ReleaseUploadBuffers();
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet);
+};
