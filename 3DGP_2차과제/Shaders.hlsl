@@ -237,3 +237,81 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 
 	return(cColor);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+Texture2D gBillboardTexture : register(t17);
+
+struct VS_BILLBOARD_IN
+{
+    float3 posW : POSITIONT;
+    float2 sizeW : SIZE;
+};
+
+struct VS_BILLBOARD_OUT
+{
+    float3 centerW : POSITION;
+    float2 sizeW : SIZE;
+};
+
+struct GS_BILLBOARD_OUT
+{
+    float4 posH : SV_POSITION;
+    float3 posW : POSITION;
+    float3 normalW : NORMAL;
+    float2 uv : TEXCOORD;
+    uint primID : SV_PrimitiveID;
+};
+
+VS_BILLBOARD_OUT VSBillboard(VS_BILLBOARD_IN input)
+{
+    VS_BILLBOARD_OUT output;
+	
+    output.centerW = input.posW;
+    output.sizeW = input.sizeW;
+	
+    return output;
+}
+
+[maxvertexcount(4)]
+void GSBillboard(point VS_BILLBOARD_OUT input[1], uint primID : SV_PrimitiveID, inout TriangleStream<GS_BILLBOARD_OUT> outStream)
+{
+    float3 vUp = float3(0.f, 1.f, 0.f);
+    float3 vLook = gvCameraPosition.xyz - input[0].centerW;
+    vLook = normalize(vLook);
+	
+    float3 vRight = cross(vUp, vLook);
+    float fHalfW = input[0].sizeW.x * 0.5f;
+    float fHalfH = input[0].sizeW.y * 0.5f;
+	
+    float4 pVertices[4];
+    pVertices[0] = float4(input[0].centerW + fHalfW * vRight - fHalfH * vUp, 1.0f);
+    pVertices[1] = float4(input[0].centerW + fHalfW * vRight + fHalfH * vUp, 1.0f);
+    pVertices[2] = float4(input[0].centerW - fHalfW * vRight - fHalfH * vUp, 1.0f);
+    pVertices[3] = float4(input[0].centerW - fHalfW * vRight + fHalfH * vUp, 1.0f);
+	
+    float2 pUVs[4] = { float2(0.f, 1.f), float2(0.f, 0.f), float2(1.f, 1.f), float2(1.f, 0.f)};
+
+	GS_BILLBOARD_OUT output;
+    for (int i = 0; i < 4; i++)
+    {
+        output.posW = pVertices[i].xyz;
+        output.posH = mul(mul(pVertices[i], gmtxView), gmtxProjection);
+        output.normalW = vLook;
+        output.uv = pUVs[i];
+        output.primID = primID;
+        outStream.Append(output);
+    }
+}
+
+float4 PSBillboard(GS_BILLBOARD_OUT input) : SV_Target
+{
+    float4 clllumination = Lighting(input.posW, input.normalW);
+    float2 uv = input.uv;
+    float4 cTexture = gBillboardTexture.Sample(gssWrap, uv);
+    float4 cColor = clllumination * cTexture;
+	
+    cColor.a = cTexture.a;
+	
+    return (cColor);
+}
