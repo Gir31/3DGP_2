@@ -9,8 +9,8 @@ CDescriptorHeap* CScene::m_pDescriptorHeap = NULL;
 
 CDescriptorHeap::CDescriptorHeap()
 {
-	m_d3dSrvCPUDescriptorStartHandle.ptr = NULL;
-	m_d3dSrvGPUDescriptorStartHandle.ptr = NULL;
+	m_d3dCPUDescriptorHandle.ptr = NULL;
+	m_d3dGPUDescriptorHandle.ptr = NULL;
 }
 
 CDescriptorHeap::~CDescriptorHeap()
@@ -33,8 +33,8 @@ void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstant
 
 void CScene::CreateConstantBufferViews(ID3D12Device* pd3dDevice, CGameObject* pObject)
 {
-	m_pDescriptorHeap->m_d3dCbvCPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
-	m_pDescriptorHeap->m_d3dCbvGPUDescriptorNextHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
 
 void CScene::CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride)

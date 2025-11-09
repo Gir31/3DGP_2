@@ -330,10 +330,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 				{
 					m_pGLM->SetNextLevel((m_pGLM->currentLevel + 1) % 3);
 					m_pGLM->ChangeLevel(m_pd3dDevice, m_pd3dCommandList, m_pd3dCommandQueue, m_pd3dCommandAllocator);
-					
-					CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pGLM->GetGraphicsRootSignature());
-					pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
-					m_pGLM->GetCurrentLevel()->m_pPlayer = m_pPlayer = pAirplanePlayer;
+
+					m_pPlayer = m_pGLM->GetCurrentLevel()->m_pPlayer;
 					m_pCamera = m_pPlayer->GetCamera();
 
 					WaitForGpuComplete();
@@ -424,9 +422,7 @@ void CGameFramework::BuildObjects()
 	if (m_pGLM->GetCurrentLevel()) 
 		m_pGLM->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 
-	CAirplanePlayer *pAirplanePlayer = new CAirplanePlayer(m_pd3dDevice, m_pd3dCommandList, m_pGLM->GetGraphicsRootSignature());
-	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
-	m_pGLM->GetCurrentLevel()->m_pPlayer = m_pPlayer = pAirplanePlayer;
+	m_pPlayer = m_pGLM->GetCurrentLevel()->m_pPlayer;
 	m_pCamera = m_pPlayer->GetCamera();
 
 	m_pd3dCommandList->Close();

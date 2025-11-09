@@ -219,9 +219,42 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nP
 	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[nPipelineState]);
 }
 
-void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
+
+void CShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
 {
 	OnPrepareRender(pd3dCommandList, nPipelineState);
+
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObject[i]) m_ppGameObject[i]->Render(pd3dCommandList, pCamera);
+	}
+}
+
+void CShader::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObject[i]) m_ppGameObject[i]->ReleaseUploadBuffers();
+	}
+}
+
+void CShader::AnimateObjects(float fTimeElapsed) 
+{
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObject[i]) m_ppGameObject[i]->Animate(fTimeElapsed);
+	}
+}
+void CShader::ReleaseObjects() 
+{
+	for (int i = 0; i < m_nGameObjects; i++)
+	{
+		if (m_ppGameObject[i])
+		{
+			m_ppGameObject[i]->Release();
+		}
+	}
+	if (m_ppGameObject) delete[] m_ppGameObject;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -296,36 +329,13 @@ void CSkyBoxShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 void CSkyBoxShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	m_pSkybox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_nGameObjects = 1;
+
+	m_ppGameObject = new CGameObject * [m_nGameObjects];
+
+	m_ppGameObject[0] = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CSkyBoxShader::ReleaseObjects()
-{
-	if (m_pSkybox)
-	{
-		m_pSkybox->Release();
-	}
-}
-
-void CSkyBoxShader::AnimateObjects(float fTimeElapsed)
-{
-}
-
-void CSkyBoxShader::ReleaseUploadBuffers()
-{
-	if (m_pSkybox) m_pSkybox->ReleaseUploadBuffers();
-}
-
-void CSkyBoxShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
-{
-	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
-
-	if (m_pSkybox)
-	{
-		m_pSkybox->Render(pd3dCommandList, pCamera);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -384,7 +394,7 @@ void CStandardShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 //
 CObjectsShader::CObjectsShader()
 {
-	m_nObjects = 120;
+	m_nGameObjects = 120;
 }
 
 CObjectsShader::~CObjectsShader()
@@ -418,58 +428,58 @@ XMFLOAT3 RandomPositionInSphere(XMFLOAT3 xmf3Center, float fRadius, int nColumn,
 
 void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext)
 {
-	m_ppObjects = new CGameObject*[m_nObjects];
+	m_ppGameObject = new CGameObject*[m_nGameObjects];
 
 	CGameObject *pSuperCobraModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/SuperCobra.bin", this);
 	CGameObject* pGunshipModel = CGameObject::LoadGeometryFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, "Model/Gunship.bin", this);
 
 	int nColumnSpace = 5, nColumnSize = 30;           
-    int nFirstPassColumnSize = (m_nObjects % nColumnSize) > 0 ? (nColumnSize - 1) : nColumnSize;
+    int nFirstPassColumnSize = (m_nGameObjects % nColumnSize) > 0 ? (nColumnSize - 1) : nColumnSize;
 
 	int nObjects = 0;
     for (int h = 0; h < nFirstPassColumnSize; h++)
     {
-        for (int i = 0; i < floor(float(m_nObjects) / float(nColumnSize)); i++)
+        for (int i = 0; i < floor(float(m_nGameObjects) / float(nColumnSize)); i++)
         {
 			if (nObjects % 2)
 			{
-				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
+				m_ppGameObject[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_ppGameObject[nObjects]->SetChild(pSuperCobraModel);
 				pSuperCobraModel->AddRef();
 			}
 			else
 			{
-				m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pGunshipModel);
+				m_ppGameObject[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_ppGameObject[nObjects]->SetChild(pGunshipModel);
 				pGunshipModel->AddRef();
 			}
 			XMFLOAT3 xmf3RandomPosition = RandomPositionInSphere(XMFLOAT3(920.0f, 0.0f, 1200.0f), Random(20.0f, 150.0f), h - int(floor(nColumnSize / 2.0f)), nColumnSpace);
-			m_ppObjects[nObjects]->SetPosition(xmf3RandomPosition.x, xmf3RandomPosition.y + 750.0f, xmf3RandomPosition.z);
-			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
-			m_ppObjects[nObjects++]->PrepareAnimate();
+			m_ppGameObject[nObjects]->SetPosition(xmf3RandomPosition.x, xmf3RandomPosition.y + 750.0f, xmf3RandomPosition.z);
+			m_ppGameObject[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
+			m_ppGameObject[nObjects++]->PrepareAnimate();
 		}
     }
 
     if (nFirstPassColumnSize != nColumnSize)
     {
-        for (int i = 0; i < m_nObjects - int(floor(float(m_nObjects) / float(nColumnSize)) * nFirstPassColumnSize); i++)
+        for (int i = 0; i < m_nGameObjects - int(floor(float(m_nGameObjects) / float(nColumnSize)) * nFirstPassColumnSize); i++)
         {
 			if (nObjects % 2)
 			{
-				m_ppObjects[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pSuperCobraModel);
+				m_ppGameObject[nObjects] = new CSuperCobraObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_ppGameObject[nObjects]->SetChild(pSuperCobraModel);
 				pSuperCobraModel->AddRef();
 			}
 			else
 			{
-				m_ppObjects[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-				m_ppObjects[nObjects]->SetChild(pGunshipModel);
+				m_ppGameObject[nObjects] = new CGunshipObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+				m_ppGameObject[nObjects]->SetChild(pGunshipModel);
 				pGunshipModel->AddRef();
 			}
 			XMFLOAT3 xmf3RandomPosition = RandomPositionInSphere(XMFLOAT3(920.0f, 0.0f, 1200.0f), Random(20.0f, 150.0f), nColumnSize - int(floor(nColumnSize / 2.0f)), nColumnSpace);
-			m_ppObjects[nObjects]->SetPosition(xmf3RandomPosition.x, xmf3RandomPosition.y + 850.0f, xmf3RandomPosition.z);
-			m_ppObjects[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
-			m_ppObjects[nObjects++]->PrepareAnimate();
+			m_ppGameObject[nObjects]->SetPosition(xmf3RandomPosition.x, xmf3RandomPosition.y + 850.0f, xmf3RandomPosition.z);
+			m_ppGameObject[nObjects]->Rotate(0.0f, 90.0f, 0.0f);
+			m_ppGameObject[nObjects++]->PrepareAnimate();
         }
     }
 
@@ -478,10 +488,10 @@ void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 void CObjectsShader::ReleaseObjects()
 {
-	if (m_ppObjects)
+	if (m_ppGameObject)
 	{
-		for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->Release();
-		delete[] m_ppObjects;
+		for (int j = 0; j < m_nGameObjects; j++) if (m_ppGameObject[j]) m_ppGameObject[j]->Release();
+		delete[] m_ppGameObject;
 	}
 }
 
@@ -491,20 +501,20 @@ void CObjectsShader::AnimateObjects(float fTimeElapsed)
 
 void CObjectsShader::ReleaseUploadBuffers()
 {
-	for (int j = 0; j < m_nObjects; j++) if (m_ppObjects[j]) m_ppObjects[j]->ReleaseUploadBuffers();
+	for (int j = 0; j < m_nGameObjects; j++) if (m_ppGameObject[j]) m_ppGameObject[j]->ReleaseUploadBuffers();
 }
 
 void CObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
 {
 	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
 
-	for (int j = 0; j < m_nObjects; j++)
+	for (int j = 0; j < m_nGameObjects; j++)
 	{
-		if (m_ppObjects[j])
+		if (m_ppGameObject[j])
 		{
-			m_ppObjects[j]->Animate(0.16f);
-			m_ppObjects[j]->UpdateTransform(NULL);
-			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+			m_ppGameObject[j]->Animate(0.16f);
+			m_ppGameObject[j]->UpdateTransform(NULL);
+			m_ppGameObject[j]->Render(pd3dCommandList, pCamera);
 		}
 	}
 }
@@ -616,37 +626,15 @@ void CTerrainShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 {
 	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
 	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+
+	m_nGameObjects = 1;
+
+	m_ppGameObject = new CGameObject * [m_nGameObjects]; 
+
+	m_ppGameObject[0] = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
 		_T("Terrain/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CTerrainShader::ReleaseObjects()
-{
-	if (m_pTerrain)
-	{
-		m_pTerrain->Release();
-	}
-}
-
-void CTerrainShader::AnimateObjects(float fTimeElapsed)
-{
-}
-
-void CTerrainShader::ReleaseUploadBuffers()
-{
-	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
-}
-
-void CTerrainShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
-{
-	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
-
-	if (m_pTerrain)
-	{
-		m_pTerrain->Render(pd3dCommandList, pCamera);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -726,34 +714,11 @@ void CBillboardShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 
 void CBillboardShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
 {
-	m_pGrass = new CGrassObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	m_nGameObjects = 1;
+
+	m_ppGameObject = new CGameObject * [m_nGameObjects];
+
+	m_ppGameObject[0] = new CGrassObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-}
-
-void CBillboardShader::ReleaseObjects()
-{
-	if (m_pGrass)
-	{
-		m_pGrass->Release();
-	}
-}
-
-void CBillboardShader::AnimateObjects(float fTimeElapsed)
-{
-}
-
-void CBillboardShader::ReleaseUploadBuffers()
-{
-	if (m_pGrass) m_pGrass->ReleaseUploadBuffers();
-}
-
-void CBillboardShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
-{
-	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
-
-	if (m_pGrass)
-	{
-		m_pGrass->Render(pd3dCommandList, pCamera);
-	}
 }

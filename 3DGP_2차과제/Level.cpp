@@ -89,6 +89,11 @@ void MenuLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
+
+	m_pPlayer = pAirplanePlayer;
 }
 
 void MenuLevel::ReleaseObjects()
@@ -257,6 +262,7 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	CBillboardShader* pBillboardShader = new CBillboardShader();
+	CPlayerShader* pPlayerShader = new CPlayerShader();
 
 	m_pDescriptorHeap = new CDescriptorHeap();
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
@@ -278,6 +284,11 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));
+
+	m_pPlayer = pAirplanePlayer;
 }
 
 void MainLevel::ReleaseObjects()
@@ -327,7 +338,6 @@ void MainLevel::ReleaseShaderVariables()
 void MainLevel::ReleaseUploadBuffers()
 {
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 }
 
 bool MainLevel::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
