@@ -27,9 +27,19 @@ class CStandardShader;
 
 class CGameObject;
 
+struct MATERIAL
+{
+	XMFLOAT4					m_cAmbient;
+	XMFLOAT4					m_cDiffuse;
+	XMFLOAT4					m_cSpecular; //a = power
+	XMFLOAT4					m_cEmissive;
+};
+
 struct CB_GAMEOBJECT_INFO
 {
 	XMFLOAT4X4						m_xmf4x4World;
+	MATERIAL						m_material;
+	UINT							textureMask;
 };
 
 class CTexture

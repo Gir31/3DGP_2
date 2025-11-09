@@ -62,6 +62,13 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUCbvDescriptorStartHandle() { return(m_d3dCbvGPUDescriptorStartHandle); }
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUSrvDescriptorStartHandle() { return(m_d3dSrvCPUDescriptorStartHandle); }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUSrvDescriptorStartHandle() { return(m_d3dSrvGPUDescriptorStartHandle); }
+
+public:
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dCPUDescriptorHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dGPUDescriptorHandle;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle() { return(m_d3dCPUDescriptorHandle); }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle() { return(m_d3dGPUDescriptorHandle); }
 };
 
 class CScene
@@ -108,6 +115,7 @@ public:
 	static CDescriptorHeap*				m_pDescriptorHeap;
 
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
+	static void CreateConstantBufferViews(ID3D12Device* pd3dDevice, CGameObject* pObject);
 	static void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferView(ID3D12Device* pd3dDevice, ID3D12Resource* pd3dConstantBuffer, UINT nStride);
 	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferView(ID3D12Device* pd3dDevice, D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress, UINT nStride);

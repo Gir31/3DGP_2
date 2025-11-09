@@ -3,8 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Scene.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:Scene.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\GameLevelManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:GameLevelManager.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:Object.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{6E098125-3DD4-4A11-BEA0-145217177AAC}|LabProject07-9-1.vcxproj|solutionrelative:Object.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +27,40 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Scene.h",
-              "DocumentMoniker": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Scene.h",
-              "RelativeDocumentMoniker": "Scene.h",
-              "ToolTip": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Scene.h",
-              "RelativeToolTip": "Scene.h",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAGUAAAAxAAAAAAAAAA==",
+              "Title": "GameLevelManager.cpp",
+              "DocumentMoniker": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\GameLevelManager.cpp",
+              "RelativeDocumentMoniker": "GameLevelManager.cpp",
+              "ToolTip": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\GameLevelManager.cpp",
+              "RelativeToolTip": "GameLevelManager.cpp",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-11-09T08:45:46.775Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Object.cpp",
+              "DocumentMoniker": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.cpp",
+              "RelativeDocumentMoniker": "Object.cpp",
+              "ToolTip": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.cpp",
+              "RelativeToolTip": "Object.cpp",
+              "ViewState": "AgIAAM8AAAAAAAAAAAAAAOIAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-11-09T08:31:17.823Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Object.h",
+              "DocumentMoniker": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.h",
+              "RelativeDocumentMoniker": "Object.h",
+              "ToolTip": "C:\\Users\\82102\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\\LabProject07-9-1 - \uBCF5\uC0AC\uBCF8 - \uBCF5\uC0AC\uBCF8\\Object.h",
+              "RelativeToolTip": "Object.h",
+              "ViewState": "AgIAALEAAAAAAAAAAAAAANEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-07T08:06:55.248Z",
+              "WhenOpened": "2025-11-09T08:30:26.214Z",
               "EditorCaption": ""
             }
           ]
