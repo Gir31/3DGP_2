@@ -293,6 +293,41 @@ void CSkyBoxShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
+
+void CSkyBoxShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+{
+	m_pSkybox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CSkyBoxShader::ReleaseObjects()
+{
+	if (m_pSkybox)
+	{
+		m_pSkybox->Release();
+	}
+}
+
+void CSkyBoxShader::AnimateObjects(float fTimeElapsed)
+{
+}
+
+void CSkyBoxShader::ReleaseUploadBuffers()
+{
+	if (m_pSkybox) m_pSkybox->ReleaseUploadBuffers();
+}
+
+void CSkyBoxShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
+{
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+
+	if (m_pSkybox)
+	{
+		m_pSkybox->Render(pd3dCommandList, pCamera);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CStandardShader::CStandardShader()
@@ -577,6 +612,43 @@ void CTerrainShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComman
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
 }
 
+void CTerrainShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+{
+	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
+	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
+	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature,
+		_T("Terrain/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CTerrainShader::ReleaseObjects()
+{
+	if (m_pTerrain)
+	{
+		m_pTerrain->Release();
+	}
+}
+
+void CTerrainShader::AnimateObjects(float fTimeElapsed)
+{
+}
+
+void CTerrainShader::ReleaseUploadBuffers()
+{
+	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
+}
+
+void CTerrainShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
+{
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+
+	if (m_pTerrain)
+	{
+		m_pTerrain->Render(pd3dCommandList, pCamera);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CBillboardShader::CBillboardShader()
@@ -650,4 +722,38 @@ void CBillboardShader::CreateShader(ID3D12Device* pd3dDevice, ID3D12GraphicsComm
 	if (m_pd3dPixelShaderBlob) m_pd3dPixelShaderBlob->Release();
 
 	if (m_d3dPipelineStateDesc.InputLayout.pInputElementDescs) delete[] m_d3dPipelineStateDesc.InputLayout.pInputElementDescs;
+}
+
+void CBillboardShader::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext)
+{
+	m_pGrass = new CGrassObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+}
+
+void CBillboardShader::ReleaseObjects()
+{
+	if (m_pGrass)
+	{
+		m_pGrass->Release();
+	}
+}
+
+void CBillboardShader::AnimateObjects(float fTimeElapsed)
+{
+}
+
+void CBillboardShader::ReleaseUploadBuffers()
+{
+	if (m_pGrass) m_pGrass->ReleaseUploadBuffers();
+}
+
+void CBillboardShader::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, int nPipelineState)
+{
+	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
+
+	if (m_pGrass)
+	{
+		m_pGrass->Render(pd3dCommandList, pCamera);
+	}
 }

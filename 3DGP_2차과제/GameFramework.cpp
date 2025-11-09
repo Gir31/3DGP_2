@@ -31,7 +31,6 @@ CGameFramework::CGameFramework()
 	m_nWndClientWidth = FRAME_BUFFER_WIDTH;
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
-	m_pScene = NULL;
 	m_pPlayer = NULL;
 
 	m_pGLM = NULL;
@@ -422,7 +421,6 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator, NULL);
 
 	m_pGLM = new GameLevelManager(m_pd3dDevice);
-	//m_pScene = new CScene();
 	if (m_pGLM->GetCurrentLevel()) 
 		m_pGLM->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
 

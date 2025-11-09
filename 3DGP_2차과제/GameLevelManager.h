@@ -10,7 +10,6 @@ public:
 
 	CScene* levelArray[3];
 	CPlayer player[3];
-	//CCamera* m_pCamera = NULL;
 
 	int currentLevel;
 	int nextLevel;

@@ -12,7 +12,6 @@ GameLevelManager::GameLevelManager(ID3D12Device* pd3dDevice)
 	for (int i = 0; i < 3; i++)
 	{
 		player[i] = CPlayer();
-		//levelArray[i] = new CScene();
 	}
 
 	levelArray[0] = new MenuLevel();

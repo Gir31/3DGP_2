@@ -64,36 +64,35 @@ void MenuLevel::BuildDefaultLightsAndMaterials()
 
 void MenuLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 	CObjectsShader* pObjectsShader = new CObjectsShader();
 	int nObjects = pObjectsShader->GetNumberOfObjects();
+
+	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
+	CTerrainShader* pTerrainShader = new CTerrainShader();
 
 	m_pDescriptorHeap = new CDescriptorHeap();
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
 
 	BuildDefaultLightsAndMaterials();
 
-	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
-	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
-
-	m_nShaders = 1;
+	m_nShaders = 3;
 	m_ppShaders = new CShader * [m_nShaders];
 
-	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	m_ppShaders[0] = pSkyBoxShader;
+	m_ppShaders[1] = pObjectsShader;
+	m_ppShaders[2] = pTerrainShader;
 
-	m_ppShaders[0] = pObjectsShader;
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void MenuLevel::ReleaseObjects()
 {
-	//if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 	if (m_pDescriptorHeap) delete m_pDescriptorHeap;
 
 	ReleaseShaderVariables();
@@ -107,15 +106,6 @@ void MenuLevel::ReleaseObjects()
 			m_ppShaders[i]->Release();
 		}
 		delete[] m_ppShaders;
-	}
-
-	if (m_pTerrain) delete m_pTerrain;
-	if (m_pSkyBox) delete m_pSkyBox;
-
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
 	}
 
 	if (m_pLights) delete[] m_pLights;
@@ -143,18 +133,11 @@ void MenuLevel::ReleaseShaderVariables()
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
 	}
-
-	if (m_pTerrain) m_pTerrain->ReleaseShaderVariables();
-	if (m_pSkyBox) m_pSkyBox->ReleaseShaderVariables();
 }
 
 void MenuLevel::ReleaseUploadBuffers()
 {
-	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
-	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
-
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
-	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 }
 
 bool MenuLevel::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -169,12 +152,6 @@ bool MenuLevel::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_ppGameObjects[0]->MoveForward(+1.0f); break;
-		case 'S': m_ppGameObjects[0]->MoveForward(-1.0f); break;
-		case 'A': m_ppGameObjects[0]->MoveStrafe(-1.0f); break;
-		case 'D': m_ppGameObjects[0]->MoveStrafe(+1.0f); break;
-		case 'Q': m_ppGameObjects[0]->MoveUp(+1.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
 		default:
 			break;
 		}
@@ -187,9 +164,6 @@ bool MenuLevel::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void MenuLevel::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
-
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
 	if (m_pLights)
@@ -212,10 +186,6 @@ void MenuLevel::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCam
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }
 
@@ -281,37 +251,37 @@ void MainLevel::BuildDefaultLightsAndMaterials()
 
 void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
-	//pd3dGraphicsRootSignature = CreateGraphicsRootSignature(pd3dDevice);
-
 	CObjectsShader* pObjectsShader = new CObjectsShader();
 	int nObjects = pObjectsShader->GetNumberOfObjects();
+
+	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
+	CTerrainShader* pTerrainShader = new CTerrainShader();
+	CBillboardShader* pBillboardShader = new CBillboardShader();
 
 	m_pDescriptorHeap = new CDescriptorHeap();
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
 
 	BuildDefaultLightsAndMaterials();
 
-	m_pSkyBox = new CSkyBox(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	m_pGrass = new CGrassObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-
-	XMFLOAT3 xmf3Scale(18.0f, 6.0f, 18.0f);
-	XMFLOAT4 xmf4Color(0.0f, 0.5f, 0.0f, 0.0f);
-	m_pTerrain = new CHeightMapTerrain(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, _T("Terrain/HeightMap.raw"), 257, 257, 257, 257, xmf3Scale, xmf4Color);
-
-	m_nShaders = 1;
+	m_nShaders = 4;
 	m_ppShaders = new CShader * [m_nShaders];
 
-	pObjectsShader->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
-	pObjectsShader->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	m_ppShaders[0] = pSkyBoxShader;
+	m_ppShaders[1] = pObjectsShader;
+	m_ppShaders[2] = pTerrainShader;
+	m_ppShaders[3] = pBillboardShader;
 
-	m_ppShaders[0] = pObjectsShader;
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	}
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 
 void MainLevel::ReleaseObjects()
 {
-	//if (m_pd3dGraphicsRootSignature) m_pd3dGraphicsRootSignature->Release();
 	if (m_pDescriptorHeap) delete m_pDescriptorHeap;
 
 	ReleaseShaderVariables();
@@ -325,16 +295,6 @@ void MainLevel::ReleaseObjects()
 			m_ppShaders[i]->Release();
 		}
 		delete[] m_ppShaders;
-	}
-
-	if (m_pTerrain) delete m_pTerrain;
-	if (m_pSkyBox) delete m_pSkyBox;
-	if (m_pGrass) delete m_pGrass;
-
-	if (m_ppGameObjects)
-	{
-		for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Release();
-		delete[] m_ppGameObjects;
 	}
 
 	if (m_pLights) delete[] m_pLights;
@@ -362,18 +322,10 @@ void MainLevel::ReleaseShaderVariables()
 		m_pd3dcbLights->Unmap(0, NULL);
 		m_pd3dcbLights->Release();
 	}
-
-	if (m_pTerrain) m_pTerrain->ReleaseShaderVariables();
-	if (m_pSkyBox) m_pSkyBox->ReleaseShaderVariables();
-	if (m_pGrass) m_pGrass->ReleaseShaderVariables();
 }
 
 void MainLevel::ReleaseUploadBuffers()
 {
-	if (m_pTerrain) m_pTerrain->ReleaseUploadBuffers();
-	if (m_pSkyBox) m_pSkyBox->ReleaseUploadBuffers();
-	if (m_pGrass) m_pGrass->ReleaseUploadBuffers();
-
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
 	for (int i = 0; i < m_nGameObjects; i++) m_ppGameObjects[i]->ReleaseUploadBuffers();
 }
@@ -390,12 +342,6 @@ bool MainLevel::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 	case WM_KEYDOWN:
 		switch (wParam)
 		{
-		case 'W': m_ppGameObjects[0]->MoveForward(+1.0f); break;
-		case 'S': m_ppGameObjects[0]->MoveForward(-1.0f); break;
-		case 'A': m_ppGameObjects[0]->MoveStrafe(-1.0f); break;
-		case 'D': m_ppGameObjects[0]->MoveStrafe(+1.0f); break;
-		case 'Q': m_ppGameObjects[0]->MoveUp(+1.0f); break;
-		case 'R': m_ppGameObjects[0]->MoveUp(-1.0f); break;
 		default:
 			break;
 		}
@@ -408,9 +354,6 @@ bool MainLevel::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM w
 
 void MainLevel::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Animate(fTimeElapsed, NULL);
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->UpdateTransform(NULL);
-
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 
 	if (m_pLights)
@@ -433,10 +376,5 @@ void MainLevel::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCam
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
 
-	if (m_pSkyBox) m_pSkyBox->Render(pd3dCommandList, pCamera);
-	if (m_pTerrain) m_pTerrain->Render(pd3dCommandList, pCamera);
-	if (m_pGrass) m_pGrass->Render(pd3dCommandList, pCamera);
-
-	for (int i = 0; i < m_nGameObjects; i++) if (m_ppGameObjects[i]) m_ppGameObjects[i]->Render(pd3dCommandList, pCamera);
 	for (int i = 0; i < m_nShaders; i++) if (m_ppShaders[i]) m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 }

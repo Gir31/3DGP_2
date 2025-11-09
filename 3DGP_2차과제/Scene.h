@@ -67,25 +67,25 @@ public:
 class CScene
 {
 public:
-    CScene();
-    ~CScene();
+	CScene() {}
+    ~CScene() {}
 
-	virtual bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
-	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam);
+	virtual bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
+	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void ReleaseShaderVariables();
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) {}
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList) {}
+	virtual void ReleaseShaderVariables() {}
 
-	virtual void BuildDefaultLightsAndMaterials();
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
-	virtual void ReleaseObjects();
+	virtual void BuildDefaultLightsAndMaterials() {}
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
+	virtual void ReleaseObjects() {}
 
-	bool ProcessInput(UCHAR *pKeysBuffer);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
+	bool ProcessInput(UCHAR *pKeysBuffer) { return(false); }
+	virtual void AnimateObjects(float fTimeElapsed) {}
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
 
-	virtual void ReleaseUploadBuffers();
+	virtual void ReleaseUploadBuffers(){}
 
 	CPlayer								*m_pPlayer = NULL;
 
@@ -95,10 +95,6 @@ public:
 
 	int									m_nShaders = 0;
 	CShader								**m_ppShaders = NULL;
-
-	CSkyBox								*m_pSkyBox = NULL;
-	CHeightMapTerrain					*m_pTerrain = NULL;
-	CGrassObject						*m_pGrass = NULL;
 
 	LIGHT								*m_pLights = NULL;
 	int									m_nLights = 0;
