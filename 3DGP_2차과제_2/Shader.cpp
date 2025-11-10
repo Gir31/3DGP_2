@@ -233,13 +233,6 @@ void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *
 	m_d3dPipelineStateDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
 	HRESULT hResult = pd3dDevice->CreateGraphicsPipelineState(&m_d3dPipelineStateDesc, __uuidof(ID3D12PipelineState), (void **)&m_ppd3dPipelineStates[0]);
-
-	if (FAILED(hResult)) {
-		char buf[256];
-		sprintf_s(buf, "[ERR] PSO Create Failed: hr=0x%08X (shader=%s)\n", hResult, "Standard");
-		OutputDebugStringA(buf);
-		// 가능하면 psoDesc의 RTV/DSV 포맷, rootSig, shader bytecode size 등도 찍어라
-	}
 }
 
 void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int nPipelineState)

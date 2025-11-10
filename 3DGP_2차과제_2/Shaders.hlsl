@@ -75,50 +75,51 @@ struct VS_STANDARD_OUTPUT
 	float3 tangentW : TANGENT;
 	float3 bitangentW : BITANGENT;
 	float2 uv : TEXCOORD;
+    uint textureMask : TEXTUREMASK;
+    MATERIAL mat : MATERIAL;
 };
 
 VS_STANDARD_OUTPUT VSStandard(VS_STANDARD_INPUT input)
 {
 	VS_STANDARD_OUTPUT output;
-	
-    SRV_GAMEOBJECT_INFO obj = gGameObjects[index];
 
-    output.positionW = (float3) mul(float4(input.position, 1.0f), obj.gmtxGameObject);
-    output.normalW = mul(input.normal, (float3x3) obj.gmtxGameObject);
-    output.tangentW = (float3) mul(float4(input.tangent, 1.0f), obj.gmtxGameObject);
-    output.bitangentW = (float3) mul(float4(input.bitangent, 1.0f), obj.gmtxGameObject);
+    matrix mtxGameObject = gGameObjects[index].gmtxGameObject;
+
+    output.positionW = (float3) mul(float4(input.position, 1.0f), mtxGameObject);
+    output.normalW = mul(input.normal, (float3x3) mtxGameObject);
+    output.tangentW = (float3) mul(float4(input.tangent, 1.0f), mtxGameObject);
+    output.bitangentW = (float3) mul(float4(input.bitangent, 1.0f), mtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
+    output.textureMask = gGameObjects[index].gnTexturesMask;
+    output.mat = gGameObjects[index].gMaterial;
 
 	return(output);
 }
 
 float4 PSStandard(VS_STANDARD_OUTPUT input) : SV_TARGET
 {
-    SRV_GAMEOBJECT_INFO obj = gGameObjects[index]; // 다시 SRV 접근
-    uint gnTexturesMask = obj.gnTexturesMask;
-	
 	float4 cAlbedoColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float4 cSpecularColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float4 cNormalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float4 cMetallicColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float4 cEmissionColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	if (gnTexturesMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
-	if (gnTexturesMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
-	if (gnTexturesMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
-	if (gnTexturesMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
-	if (gnTexturesMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
+	if (input.textureMask & MATERIAL_ALBEDO_MAP) cAlbedoColor = gtxtAlbedoTexture.Sample(gssWrap, input.uv);
+	if (input.textureMask & MATERIAL_SPECULAR_MAP) cSpecularColor = gtxtSpecularTexture.Sample(gssWrap, input.uv);
+	if (input.textureMask & MATERIAL_NORMAL_MAP) cNormalColor = gtxtNormalTexture.Sample(gssWrap, input.uv);
+	if (input.textureMask & MATERIAL_METALLIC_MAP) cMetallicColor = gtxtMetallicTexture.Sample(gssWrap, input.uv);
+	if (input.textureMask & MATERIAL_EMISSION_MAP) cEmissionColor = gtxtEmissionTexture.Sample(gssWrap, input.uv);
 
 	float4 cIllumination = float4(1.0f, 1.0f, 1.0f, 1.0f);
 	float4 cColor = cAlbedoColor + cSpecularColor + cEmissionColor;
-	if (gnTexturesMask & MATERIAL_NORMAL_MAP)
+	if (input.textureMask & MATERIAL_NORMAL_MAP)
 	{
 		float3 normalW = input.normalW;
 		float3x3 TBN = float3x3(normalize(input.tangentW), normalize(input.bitangentW), normalize(input.normalW));
 		float3 vNormal = normalize(cNormalColor.rgb * 2.0f - 1.0f); //[0, 1] → [-1, 1]
 		normalW = normalize(mul(vNormal, TBN));
-		cIllumination = Lighting(input.positionW, normalW, obj.gMaterial);
+        cIllumination = Lighting(input.positionW, normalW, input.mat);
 		cColor = lerp(cColor, cIllumination, 0.5f);
 	}
 
@@ -141,14 +142,14 @@ struct VS_SKYBOX_CUBEMAP_OUTPUT
 VS_SKYBOX_CUBEMAP_OUTPUT VSSkyBox(VS_SKYBOX_CUBEMAP_INPUT input)
 {
 	VS_SKYBOX_CUBEMAP_OUTPUT output;
-    SRV_GAMEOBJECT_INFO obj = gGameObjects[index];
+    matrix mtxGameObject = gGameObjects[index].gmtxGameObject;
 	
     matrix viewNoTrans = gmtxView;
     viewNoTrans._41 = 0.0f;
     viewNoTrans._42 = 0.0f;
     viewNoTrans._43 = 0.0f;
 	
-    output.position = mul(mul(mul(float4(input.position, 1.0f), obj.gmtxGameObject), viewNoTrans), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), mtxGameObject), viewNoTrans), gmtxProjection);
 	output.positionL = input.position;
 
 	return(output);
@@ -181,35 +182,13 @@ struct VS_SPRITE_TEXTURED_OUTPUT
 VS_SPRITE_TEXTURED_OUTPUT VSTextured(VS_SPRITE_TEXTURED_INPUT input)
 {
 	VS_SPRITE_TEXTURED_OUTPUT output;
-    SRV_GAMEOBJECT_INFO obj = gGameObjects[index];
+    matrix mtxGameObject = gGameObjects[index].gmtxGameObject;
 
-	output.position = mul(mul(mul(float4(input.position, 1.0f), obj.gmtxGameObject), gmtxView), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), mtxGameObject), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return(output);
 }
-
-/*
-float4 PSTextured(VS_SPRITE_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
-{
-	float4 cColor;
-	if (nPrimitiveID < 2)
-		cColor = gtxtTextures[0].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 4)
-		cColor = gtxtTextures[1].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 6)
-		cColor = gtxtTextures[2].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 8)
-		cColor = gtxtTextures[3].Sample(gWrapSamplerState, input.uv);
-	else if (nPrimitiveID < 10)
-		cColor = gtxtTextures[4].Sample(gWrapSamplerState, input.uv);
-	else
-		cColor = gtxtTextures[5].Sample(gWrapSamplerState, input.uv);
-	float4 cColor = gtxtTextures[NonUniformResourceIndex(nPrimitiveID/2)].Sample(gWrapSamplerState, input.uv);
-
-	return(cColor);
-}
-*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -243,9 +222,9 @@ struct VS_TERRAIN_OUTPUT
 VS_TERRAIN_OUTPUT VSTerrain(VS_TERRAIN_INPUT input)
 {
 	VS_TERRAIN_OUTPUT output;
-    SRV_GAMEOBJECT_INFO obj = gGameObjects[index];
+    matrix mtxGameObject = gGameObjects[index].gmtxGameObject;
 
-    output.position = mul(mul(mul(float4(input.position, 1.0f), obj.gmtxGameObject), gmtxView), gmtxProjection);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), mtxGameObject), gmtxView), gmtxProjection);
 	output.color = input.color;
 	output.uv0 = input.uv0;
 	output.uv1 = input.uv1;
@@ -257,10 +236,7 @@ float4 PSTerrain(VS_TERRAIN_OUTPUT input) : SV_TARGET
 {
 	float4 cBaseTexColor = gtxtTerrainTexture.Sample(gssWrap, input.uv0);
 	float4 cDetailTexColor = gtxtDetailTexture.Sample(gssWrap, input.uv1);
-	//	float fAlpha = gtxtTerrainTexture.Sample(gssWrap, input.uv0);
-
 	float4 cColor = cBaseTexColor * 0.5f + cDetailTexColor * 0.5f;
-	//	float4 cColor = saturate(lerp(cBaseTexColor, cDetailTexColor, fAlpha));
 
 	return(cColor);
 }
@@ -333,9 +309,7 @@ void GSBillboard(point VS_BILLBOARD_OUT input[1], uint primID : SV_PrimitiveID, 
 
 float4 PSBillboard(GS_BILLBOARD_OUT input) : SV_Target
 {
-    //float4 clllumination = Lighting(input.posW, input.normalW);
     float4 cTexture = gBillboardTexture.Sample(gssWrap, input.uv);
-   // float4 cColor = clllumination * cTexture;
     float4 cColor = cTexture;
 	
     cColor.a = cTexture.a;

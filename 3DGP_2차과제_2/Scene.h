@@ -97,8 +97,7 @@ public:
 	std::vector<SRV_GAMEOBJECT_INFO>	m_vGameObjectsInfo;
 	UINT								SRVIndex = 0; 
 
-	void AddGameObjectInfo(CGameObject* gameObject); 
-
+	void AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix); 
 public:
 	static CDescriptorHeap*				m_pDescriptorHeap;
 

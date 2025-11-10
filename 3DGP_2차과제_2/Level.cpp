@@ -129,7 +129,7 @@ void MenuLevel::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		for (int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
-			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j]);
+			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j], NULL);
 	}
 
 	CreateShaderResourceView(pd3dDevice);
@@ -342,7 +342,7 @@ void MainLevel::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		for(int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
-			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j]);
+			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j], NULL);
 	}
 
 	CreateShaderResourceView(pd3dDevice);

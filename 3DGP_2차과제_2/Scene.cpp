@@ -151,21 +151,16 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice)
 	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
 
-void CScene::AddGameObjectInfo(CGameObject* gameObject)
+void CScene::AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix)
 {
 	if (!gameObject) return;
 
 	SRV_GAMEOBJECT_INFO info = {};
+	XMFLOAT4X4 worldMatrix = (parentMatrix) ? Matrix4x4::Multiply(gameObject->m_xmf4x4Transform, *parentMatrix) : gameObject->m_xmf4x4Transform;
+	
+	XMMATRIX mtxPWorld = XMLoadFloat4x4(&worldMatrix);
 
-	XMMATRIX mtxWorld = XMLoadFloat4x4(&gameObject->m_xmf4x4World);
-	XMMATRIX mtxTransform = XMLoadFloat4x4(&gameObject->m_xmf4x4Transform);
-
-	// 최종 행렬 = 로컬변환 * 월드변환
-	XMMATRIX mtxFinal = XMMatrixMultiply(mtxTransform, mtxWorld);
-
-	// Transpose해서 GPU(row_major)로 보낼 경우
-	XMStoreFloat4x4(&info.m_xmf4x4World, XMMatrixTranspose(mtxFinal));
-	//XMStoreFloat4x4(&info.m_xmf4x4World, XMMatrixTranspose(mtxFinal));
+	XMStoreFloat4x4(&info.m_xmf4x4World, XMMatrixTranspose(mtxPWorld));
 
 	if (gameObject->m_nMaterials && gameObject->m_ppMaterials[0]) {
 		info.m_material.m_cAmbient = gameObject->m_ppMaterials[0]->m_xmf4AmbientColor;
@@ -176,10 +171,10 @@ void CScene::AddGameObjectInfo(CGameObject* gameObject)
 		info.m_textureMask = gameObject->m_ppMaterials[0]->m_nType;
 	}
 
-	m_vGameObjectsInfo.push_back(info);
+	m_vGameObjectsInfo.emplace_back(info);
 
 	gameObject->SRVIndex = SRVIndex++;
 
-	if (gameObject->m_pChild) AddGameObjectInfo(gameObject->m_pChild);
-	if (gameObject->m_pSibling) AddGameObjectInfo(gameObject->m_pSibling);
+	if (gameObject->m_pChild) AddGameObjectInfo(gameObject->m_pChild, &worldMatrix);
+	if (gameObject->m_pSibling) AddGameObjectInfo(gameObject->m_pSibling, parentMatrix);
 }
