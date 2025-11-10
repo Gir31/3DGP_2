@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shader.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Shader.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shaders.hlsl||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Shaders.hlsl||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Object.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Object.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Level.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Level.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shader.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Shader.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Scene.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Scene.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Level.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B88AEEEA-5B01-4254-B13B-29294EE75F55}|LabProject08-1-3.vcxproj|solutionrelative:Level.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,12 +35,25 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Shaders.hlsl",
+              "DocumentMoniker": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shaders.hlsl",
+              "RelativeDocumentMoniker": "Shaders.hlsl",
+              "ToolTip": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shaders.hlsl",
+              "RelativeToolTip": "Shaders.hlsl",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAAAIgAAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-11-09T21:48:02.452Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "Shader.cpp",
               "DocumentMoniker": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shader.cpp",
               "RelativeDocumentMoniker": "Shader.cpp",
               "ToolTip": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Shader.cpp",
               "RelativeToolTip": "Shader.cpp",
-              "ViewState": "AgIAAJ0CAAAAAAAAAAAswL4CAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAABQBAAAAAAAAAAAswE8BAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-11-09T18:53:26.086Z",
               "EditorCaption": ""
@@ -51,11 +68,12 @@
               "RelativeToolTip": "Scene.h",
               "ViewState": "AgIAACoAAAAAAAAAAAAcwE0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-09T18:38:15.501Z"
+              "WhenOpened": "2025-11-09T18:38:15.501Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "Level.cpp",
               "DocumentMoniker": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Level.cpp",
               "RelativeDocumentMoniker": "Level.cpp",
@@ -73,9 +91,10 @@
               "RelativeDocumentMoniker": "Object.cpp",
               "ToolTip": "C:\\Users\\rpg26\\OneDrive\\Desktop\\\uD559\uAD50\\3DGP_2\\3DGP_2\uCC28\uACFC\uC81C\\Object.cpp",
               "RelativeToolTip": "Object.cpp",
-              "ViewState": "AgIAADABAAAAAAAAAAAtwGkBAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAACkDAAAAAAAAAAArwE4DAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-11-09T11:07:07.875Z"
+              "WhenOpened": "2025-11-09T11:07:07.875Z",
+              "EditorCaption": ""
             }
           ]
         }
