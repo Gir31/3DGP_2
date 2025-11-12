@@ -70,24 +70,37 @@ void MenuLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	CBoundingBoxShader* pBoundingBoxShader = new CBoundingBoxShader(); 
+	CSphereShader* pSphereShader = new CSphereShader();
 
 	m_pDescriptorHeap = new CDescriptorHeap();
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3 + 1); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
 
 	BuildDefaultLightsAndMaterials();
 
-	m_nShaders = 4;
+	m_nShaders = 3;
 	m_ppShaders = new CShader * [m_nShaders];
 
 	m_ppShaders[0] = pSkyBoxShader;
 	m_ppShaders[1] = pObjectsShader;
 	m_ppShaders[2] = pTerrainShader;
-	m_ppShaders[3] = pBoundingBoxShader;  
+
+	m_nDebugShaders = 2;
+	m_ppDebugShaders = new CShader * [m_nDebugShaders];
+
+	m_ppDebugShaders[0] = pBoundingBoxShader;
+	m_ppDebugShaders[1] = pSphereShader;
+
 
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		m_ppShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	}
+
+	for (int i = 0; i < m_nDebugShaders; i++)
+	{
+		m_ppDebugShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppDebugShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
 	}
 
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
@@ -115,6 +128,17 @@ void MenuLevel::ReleaseObjects()
 		delete[] m_ppShaders;
 	}
 
+	if (m_ppDebugShaders)
+	{
+		for (int i = 0; i < m_nDebugShaders; i++)
+		{
+			m_ppDebugShaders[i]->ReleaseShaderVariables();
+			m_ppDebugShaders[i]->ReleaseObjects();
+			m_ppDebugShaders[i]->Release();
+		}
+		delete[] m_ppDebugShaders;
+	}
+
 	if (m_pLights) delete[] m_pLights;
 }
 
@@ -132,12 +156,19 @@ void MenuLevel::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		for (int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
-			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j], NULL);
+			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j]);
 	}
 
-	AddGameObjectInfo(m_pPlayer, NULL);
+	for (int i = 0; i < m_nDebugShaders; i++)
+	{
+		for (int j = 0; j < m_ppDebugShaders[i]->m_nGameObjects; j++)
+			AddGameObjectInfo(m_ppDebugShaders[i]->m_ppGameObject[j]);
+	}
 
-	((CBoundingBoxShader*)m_ppShaders[3])->m_nBoxes = (UINT)m_vBoundingBoxInfo.size();
+	AddGameObjectInfo(m_pPlayer);
+
+	((CBoundingBoxShader*)m_ppDebugShaders[0])->m_nBoxes = (UINT)m_vBoundingBoxInfo.size();
+	((CSphereShader*)m_ppDebugShaders[1])->m_nSphere = (UINT)m_vSphereInfo.size();
 
 	CreateShaderResourceView(pd3dDevice, pd3dCommandList);
 }
@@ -165,6 +196,7 @@ void MenuLevel::ReleaseShaderVariables()
 void MenuLevel::ReleaseUploadBuffers()
 {
 	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nDebugShaders; i++) m_ppDebugShaders[i]->ReleaseUploadBuffers();
 }
 
 bool MenuLevel::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -233,11 +265,17 @@ void MenuLevel::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCam
 	BindGameObjectSRV(pd3dCommandList);
 
 	pd3dCommandList->SetGraphicsRootDescriptorTable(14, m_pDescriptorHeap->m_d3dGPUBoundingBoxDescriptorHandle); //BoundingBox
+	pd3dCommandList->SetGraphicsRootDescriptorTable(15, m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle); //Sphere
 
 	for (int i = 0; i < m_nShaders; i++) {
 		if (m_ppShaders[i])
 			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 	}
+
+	if (m_ppDebugShaders[0] && debugCollisionBoundingBox)
+		m_ppDebugShaders[0]->Render(pd3dCommandList, pCamera);
+	if (m_ppDebugShaders[1] && debugCollisionSphere)
+		m_ppDebugShaders[1]->Render(pd3dCommandList, pCamera);
 }
 
 //-----------------------------------------------------------------------------
@@ -370,10 +408,10 @@ void MainLevel::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	for (int i = 0; i < m_nShaders; i++)
 	{
 		for(int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
-			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j], NULL);
+			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j]);
 	}
 
-	AddGameObjectInfo(m_pPlayer, NULL);
+	AddGameObjectInfo(m_pPlayer);
 
 	CreateShaderResourceView(pd3dDevice, pd3dCommandList);
 }

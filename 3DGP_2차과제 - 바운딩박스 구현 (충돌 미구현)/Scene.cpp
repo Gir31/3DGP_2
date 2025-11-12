@@ -204,14 +204,41 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+
+	///////////////////////////////////////////////////////////////////////////////////
+	// Bounding Box Info SRV
+	const UINT numSphElements = (UINT)m_vSphereInfo.size();
+	const UINT elementSphSize = sizeof(SRV_SPHERE_INFO);
+	const UINT totalSphSize = numSphElements * elementSphSize;
+
+	m_pd3dSphereBuffer = ::CreateBufferResource(
+		pd3dDevice, NULL, m_vSphereInfo.data(), totalSphSize,
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvSphDesc = {};
+	srvSphDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvSphDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvSphDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvSphDesc.Buffer.FirstElement = 0;
+	srvSphDesc.Buffer.NumElements = numSphElements;
+	srvSphDesc.Buffer.StructureByteStride = elementSphSize;
+	srvSphDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	pd3dDevice->CreateShaderResourceView(m_pd3dSphereBuffer, &srvSphDesc, m_pDescriptorHeap->m_d3dCPUDescriptorHandle);
+
+	m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle = m_pDescriptorHeap->m_d3dGPUDescriptorHandle;
+
+	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
 
-void CScene::AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix)
+void CScene::AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix, XMFLOAT4X4* parentModelMatrix)
 {
 	if (!gameObject) return;
 
 	SRV_GAMEOBJECT_INFO info = {};
 	XMFLOAT4X4 worldMatrix = (parentMatrix) ? Matrix4x4::Multiply(gameObject->m_xmf4x4Transform, *parentMatrix) : gameObject->m_xmf4x4Transform;
+	XMFLOAT4X4 modelMatrix = (parentModelMatrix) ? Matrix4x4::Multiply(gameObject->m_xmf4x4Transform, *parentModelMatrix) : Matrix4x4::Identity();
 	
 	XMMATRIX mtxPWorld = XMLoadFloat4x4(&worldMatrix);
 
@@ -230,10 +257,28 @@ void CScene::AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix
 
 	gameObject->SRVIndex = SRVIndex++;
 
-	AddBoundingBoxInfo(gameObject); 
+	float radius = AddDebugCollisionInfo(gameObject, &modelMatrix);
 
-	if (gameObject->m_pChild) AddGameObjectInfo(gameObject->m_pChild, &worldMatrix);
-	if (gameObject->m_pSibling) AddGameObjectInfo(gameObject->m_pSibling, parentMatrix);
+	
+	if (parentMatrix == NULL)
+	{
+		SRV_SPHERE_INFO sphereInfo = {};
+		sphereInfo.m_fRadius = radius;
+		sphereInfo.m_objectIndex = gameObject->SRVIndex;
+
+		m_vSphereInfo.emplace_back(sphereInfo);
+	}
+	else
+	{
+		if (!m_vSphereInfo.empty())
+		{
+			if (m_vSphereInfo.back().m_fRadius < radius)
+				m_vSphereInfo.back().m_fRadius = radius;
+		}
+	}
+
+	if (gameObject->m_pChild) AddGameObjectInfo(gameObject->m_pChild, &worldMatrix, &modelMatrix);
+	if (gameObject->m_pSibling) AddGameObjectInfo(gameObject->m_pSibling, parentMatrix, parentModelMatrix);
 }
 
 void CScene::UpdateGameObjectINFO(CGameObject* gameObject)
@@ -289,17 +334,50 @@ void CScene::BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT 
 	pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, m_pDescriptorHeap->m_d3dGPUObjectDescriptorHandle[renderFrame]);
 }
 
-void CScene::AddBoundingBoxInfo(CGameObject* gameObject)
+FLOAT CScene::AddDebugCollisionInfo(CGameObject* gameObject, XMFLOAT4X4* modelMatrix)
 {
-	if (!gameObject->m_nMeshes || !gameObject->m_ppMeshes[0]) return;
+	if (!gameObject || !gameObject->m_nMeshes || !gameObject->m_ppMeshes[0])
+		return 0.f;
 
 	SRV_BOUNDINGBOX_INFO info = {};
+	float maxRadius = 0.f;
 
-	for (int i = 0; i < gameObject->m_nMeshes; ++i) {
-		info.m_xmf3AABBCenter = gameObject->m_ppMeshes[i]->GetAABBCenter();
-		info.m_xmf3AABBExtents = gameObject->m_ppMeshes[i]->GetAABBExtents();
+	for (int i = 0; i < gameObject->m_nMeshes; ++i)
+	{
+		CMesh* pMesh = gameObject->m_ppMeshes[i];
+		if (!pMesh) continue; 
+
+		XMFLOAT3 extents = pMesh->GetAABBExtents();
+
+		XMFLOAT3 sphereCenter = pMesh->GetAABBCenter();
+		XMFLOAT3 boundingBoxCenter = pMesh->GetAABBCenter();
+
+		if (modelMatrix)
+		{
+			XMVECTOR vCenter = XMLoadFloat3(&sphereCenter);
+			XMMATRIX xmModel = XMLoadFloat4x4(modelMatrix);
+			vCenter = XMVector3TransformCoord(vCenter, xmModel);
+			XMStoreFloat3(&sphereCenter, vCenter);
+		}
+
+		if (extents.x == 0.f && extents.y == 0.f && extents.z == 0.f)
+			continue; 
+
+		float cornerX = fabsf(sphereCenter.x) + extents.x;
+		float cornerY = fabsf(sphereCenter.y) + extents.y;
+		float cornerZ = fabsf(sphereCenter.z) + extents.z;
+
+		float radius = sqrtf(cornerX * cornerX + cornerY * cornerY + cornerZ * cornerZ);
+
+		if (radius > maxRadius)
+			maxRadius = radius;
+
+		info.m_xmf3AABBCenter = boundingBoxCenter;
+		info.m_xmf3AABBExtents = extents;
 		info.m_objectIndex = gameObject->SRVIndex;
 
 		m_vBoundingBoxInfo.emplace_back(info);
 	}
+
+	return maxRadius;
 }

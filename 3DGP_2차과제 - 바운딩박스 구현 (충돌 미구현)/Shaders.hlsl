@@ -32,6 +32,12 @@ cbuffer cbGameObjectIndex : register(b3)
     uint index : packoffset(c0);
 };
 
+struct SRV_SPHERE_INFO
+{
+    float radius;
+    uint objectIndex;
+};
+
 struct SRV_BOUNDINGBOX_INFO
 {
     float3 center;
@@ -41,6 +47,7 @@ struct SRV_BOUNDINGBOX_INFO
 
 StructuredBuffer<SRV_GAMEOBJECT_INFO> gGameObjects : register(t18);
 StructuredBuffer<SRV_BOUNDINGBOX_INFO> gBoundingBoxs : register(t19);
+StructuredBuffer<SRV_SPHERE_INFO> gSpheres : register(t20);
 
 #include "Light.hlsl"
 
@@ -320,6 +327,112 @@ float4 PSBillboard(GS_BILLBOARD_OUT input) : SV_Target
     clip(cColor.a - 0.3f);
 	
     return (cColor);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+struct VS_SPHERE_OUT
+{
+    matrix center : POSITION;
+    float radius : RADIUS;
+    uint objectIndex : INDEX;
+};
+
+struct GS_SPHERE_OUT
+{
+    float4 posH : SV_POSITION;
+};
+
+VS_SPHERE_OUT VSSphere(uint instanceID : SV_InstanceID)
+{
+    VS_SPHERE_OUT output;
+    SRV_SPHERE_INFO sphere = gSpheres[instanceID];
+    
+    output.radius = sphere.radius;
+    output.objectIndex = sphere.objectIndex;
+    output.center = gGameObjects[output.objectIndex].gmtxGameObject;
+
+    return output;
+}
+
+[maxvertexcount(192)]
+void GSSphere(point VS_SPHERE_OUT input[1],
+              inout LineStream<GS_SPHERE_OUT> outStream)
+{
+    float radius = input[0].radius;
+    float4x4 mtxWorld = input[0].center;
+
+    const int segments = 32;
+    const float step = 6.2831853f / segments;
+    
+    matrix gmtxViewProjection = mul(gmtxView, gmtxProjection);
+
+    // ---------------------------------------
+    // XY 면 원
+    // ---------------------------------------
+    [unroll]
+    for (int i = 0; i < segments; ++i)
+    {
+        float a0 = i * step;
+        float a1 = (i + 1) * step;
+
+        float3 p0 = float3(cos(a0) * radius, sin(a0) * radius, 0);
+        float3 p1 = float3(cos(a1) * radius, sin(a1) * radius, 0);
+
+        GS_SPHERE_OUT v0, v1;
+        v0.posH = mul(mul(float4(p0, 1.0f), mtxWorld), gmtxViewProjection);
+        v1.posH = mul(mul(float4(p1, 1.0f), mtxWorld), gmtxViewProjection);
+        outStream.Append(v0);
+        outStream.Append(v1);
+        outStream.RestartStrip();
+    }
+
+    // ---------------------------------------
+    // XZ 면 원
+    // ---------------------------------------
+    [unroll]
+    for (int j = 0; j < segments; ++j)
+    {
+        float a0 = j * step;
+        float a1 = (j + 1) * step;
+
+        float3 p0 = float3(cos(a0) * radius, 0, sin(a0) * radius);
+        float3 p1 = float3(cos(a1) * radius, 0, sin(a1) * radius);
+
+        GS_SPHERE_OUT v0, v1;
+        v0.posH = mul(mul(float4(p0, 1.0f), mtxWorld), gmtxViewProjection);
+        v1.posH = mul(mul(float4(p1, 1.0f), mtxWorld), gmtxViewProjection);
+        outStream.Append(v0);
+        outStream.Append(v1);
+        outStream.RestartStrip();
+    }
+
+    // ---------------------------------------
+    // YZ 면 원
+    // ---------------------------------------
+    [unroll]
+    for (int k = 0; k < segments; ++k)
+    {
+        float a0 = k * step;
+        float a1 = (k + 1) * step;
+
+        float3 p0 = float3(0, cos(a0) * radius, sin(a0) * radius);
+        float3 p1 = float3(0, cos(a1) * radius, sin(a1) * radius);
+
+        GS_SPHERE_OUT v0, v1;
+        v0.posH = mul(mul(float4(p0, 1.0f), mtxWorld), gmtxViewProjection);
+        v1.posH = mul(mul(float4(p1, 1.0f), mtxWorld), gmtxViewProjection);
+        outStream.Append(v0);
+        outStream.Append(v1);
+        outStream.RestartStrip();
+    }
+}
+
+
+
+float4 PSSphere(GS_SPHERE_OUT input) : SV_Target
+{
+    return float4(1.f, 0.f, 0.f, 1.f);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

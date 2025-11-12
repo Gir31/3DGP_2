@@ -37,6 +37,20 @@ struct LIGHTS
 	int						m_nLights;
 };
 
+struct GAMEOBJECT
+{
+	SRV_SPHERE_INFO			*sphere;
+	SRV_BOUNDINGBOX_INFO	*boundingBox;
+	CGameObject				*obj;
+};
+
+struct OctreeNode
+{
+	SRV_BOUNDINGBOX_INFO	bounds;
+	std::vector<GAMEOBJECT*> objects;
+	OctreeNode* child[8] = { nullptr };
+};
+
 class CDescriptorHeap
 {
 public:
@@ -49,6 +63,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dGPUDescriptorHandle;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUObjectDescriptorHandle[2] = { 0, 0 };
+	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUSphereDescriptorHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUBoundingBoxDescriptorHandle;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle() { return(m_d3dCPUDescriptorHandle); }
@@ -84,6 +99,9 @@ public:
 	int									m_nShaders = 0;
 	CShader								**m_ppShaders = NULL;
 
+	int									m_nDebugShaders = 0;
+	CShader								**m_ppDebugShaders = NULL;
+
 	LIGHT								*m_pLights = NULL;
 	int									m_nLights = 0;
 
@@ -107,17 +125,24 @@ public:
 	UINT                                    m_nElemSizeCached = 0;
 	UINT                                    m_nTotalSizeCached = 0;
 
-	void AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix); 
+	void AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix = NULL, XMFLOAT4X4* parentModelMatrix = NULL);
 	void UpdateGameObjectINFO(CGameObject* gameObject);
 	void UpdateGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList);
 	void BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex = 1);
 
 public:
+	//--[충돌 디버깅용]--------------------------------------------------------
+	ID3D12Resource* m_pd3dSphereBuffer = NULL;
+	std::vector<SRV_SPHERE_INFO> m_vSphereInfo;
+
 	ID3D12Resource* m_pd3dBoundingBoxBuffer = NULL;
 	std::vector<SRV_BOUNDINGBOX_INFO> m_vBoundingBoxInfo; 
 
-	void AddBoundingBoxInfo(CGameObject* gameObject);
+	FLOAT AddDebugCollisionInfo(CGameObject* gameObject, XMFLOAT4X4* modelMatrix);
 
+	bool debugCollisionSphere = false;
+	bool debugCollisionBoundingBox = false; 
+	//-------------------------------------------------------------------------
 public:
 	static CDescriptorHeap*				m_pDescriptorHeap;
 

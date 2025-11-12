@@ -1,2 +1,34 @@
-﻿  Object.cpp
-  LabProject08-1-3.vcxproj -> C:\Users\82102\Desktop\3DGP_2차과제_2\x64\Debug\LabProject08-1-3.exe
+﻿  Camera.cpp
+  DDSTextureLoader12.cpp
+  GameFramework.cpp
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\GameFramework.cpp(416,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameLevelManager.cpp
+  LabProject08-1-3.cpp
+  Level.cpp
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(134,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(184,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(204,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(372,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(420,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Level.cpp(439,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  Mesh.cpp
+  Object.cpp
+  Player.cpp
+  Scene.cpp
+  Shader.cpp
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(247,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(255,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(263,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(275,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(488,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(515,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(522,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(534,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(541,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\Shader.cpp(835,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  stdafx.cpp
+  Timer.cpp
+  WICTextureLoader12.cpp
+  코드를 생성하고 있습니다...
+  LINK : C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\x64\Debug\LabProject08-1-3.exe을(를) 찾을 수 없거나 마지막 증분 링크에 의해 빌드되지 않았습니다. 전체 링크를 수행하고 있습니다.
+  LabProject08-1-3.vcxproj -> C:\Users\82102\Desktop\3DGP_2차과제 - 바운딩박스 구현 (충돌 미구현)\x64\Debug\LabProject08-1-3.exe

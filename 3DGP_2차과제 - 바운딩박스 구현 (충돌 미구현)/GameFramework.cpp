@@ -337,10 +337,16 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					WaitForGpuComplete();
 					break;
 				}
+				case VK_F5:
+					m_pGLM->GetCurrentLevel()->debugCollisionSphere =
+						!m_pGLM->GetCurrentLevel()->debugCollisionSphere;
+					break;
+				case VK_F6:
+					m_pGLM->GetCurrentLevel()->debugCollisionBoundingBox =
+						!m_pGLM->GetCurrentLevel()->debugCollisionBoundingBox;
+					break;
 				case VK_F9:
 					ChangeSwapChainState();
-					break;
-				case VK_F5:
 					break;
 				default:
 					break;

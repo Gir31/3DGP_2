@@ -1083,6 +1083,30 @@ void CBillboardObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamer
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+CSphereObject::CSphereObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject(1, 1)
+{
+	XMFLOAT3 location = XMFLOAT3(0.f, 0.f, 0.f);
+	XMFLOAT3 size = XMFLOAT3(0.f, 0.f, 0.f);
+
+	CPointMesh* pPointMesh = new CPointMesh(pd3dDevice, pd3dCommandList, &location, &size);
+	SetMesh(0, pPointMesh);
+
+	CMaterial* pSphere = new CMaterial();
+
+	SetMaterial(0, pSphere);
+}
+
+CSphereObject::~CSphereObject()
+{
+}
+
+void CSphereObject::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, UINT nInstances)
+{
+	CGameObject::Render(pd3dCommandList, pCamera, nInstances);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 CBoundingBoxObject::CBoundingBoxObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature) : CGameObject(1, 1)
 {
 	XMFLOAT3 location = XMFLOAT3(0.f, 0.f, 0.f);

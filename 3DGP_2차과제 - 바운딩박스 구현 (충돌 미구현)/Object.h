@@ -42,6 +42,12 @@ struct SRV_GAMEOBJECT_INFO
 	UINT							m_textureMask;
 };
 
+struct SRV_SPHERE_INFO
+{
+	FLOAT 							m_fRadius;
+	UINT 							m_objectIndex;
+};
+
 struct SRV_BOUNDINGBOX_INFO
 {
 	XMFLOAT3						m_xmf3AABBCenter;
@@ -358,6 +364,17 @@ class CBillboardObject : public CGameObject
 public:
 	CBillboardObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
 	virtual ~CBillboardObject();
+
+	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL, UINT nInstances = 1);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+class CSphereObject : public CGameObject
+{
+public:
+	CSphereObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature);
+	virtual ~CSphereObject();
 
 	virtual void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL, UINT nInstances = 1);
 };
