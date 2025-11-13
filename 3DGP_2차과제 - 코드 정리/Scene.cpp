@@ -5,18 +5,210 @@
 #include "stdafx.h"
 #include "Scene.h"
 
-CDescriptorHeap* CScene::m_pDescriptorHeap = NULL;
-
-CDescriptorHeap::CDescriptorHeap()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// [CScene]
+void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	m_d3dCPUDescriptorHandle.ptr = NULL;
-	m_d3dGPUDescriptorHandle.ptr = NULL;
+	UINT ncbElementBytes = ((sizeof(LIGHTS) + 255) & ~255); //256의 배수
+	m_pd3dcbLights = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	m_pd3dcbLights->Map(0, NULL, (void**)&m_pcbMappedLights);
+
+	m_vGameObjectsInfo.clear();
+	SRVIndex = 0;
+
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		for (int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
+			AddGameObjectInfo(m_ppShaders[i]->m_ppGameObject[j]);
+	}
+
+	for (int i = 0; i < CM->m_nDebugShaders; i++)
+	{
+		for (int j = 0; j < CM->m_ppDebugShaders[i]->m_nGameObjects; j++)
+			AddGameObjectInfo(CM->m_ppDebugShaders[i]->m_ppGameObject[j]);
+	}
+
+	AddGameObjectInfo(m_pPlayer);
+
+	CM->CreateShaderVariables(pd3dDevice, pd3dCommandList);
+
+	CreateShaderResourceView(pd3dDevice, pd3dCommandList);
 }
 
-CDescriptorHeap::~CDescriptorHeap()
+void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
 {
-	if (m_pd3dCbvSrvDescriptorHeap) m_pd3dCbvSrvDescriptorHeap->Release();
+	::memcpy(m_pcbMappedLights->m_pLights, m_pLights, sizeof(LIGHT) * m_nLights);
+	::memcpy(&m_pcbMappedLights->m_xmf4GlobalAmbient, &m_xmf4GlobalAmbient, sizeof(XMFLOAT4));
+	::memcpy(&m_pcbMappedLights->m_nLights, &m_nLights, sizeof(int));
 }
+
+void CScene::BuildDefaultLightsAndMaterials()
+{
+	m_nLights = 4;
+	m_pLights = new LIGHT[m_nLights];
+	::ZeroMemory(m_pLights, sizeof(LIGHT) * m_nLights);
+
+	m_xmf4GlobalAmbient = XMFLOAT4(0.15f, 0.15f, 0.15f, 1.0f);
+
+	m_pLights[0].m_bEnable = true;
+	m_pLights[0].m_nType = POINT_LIGHT;
+	m_pLights[0].m_fRange = 1000.0f;
+	m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.1f, 0.0f, 0.0f, 1.0f);
+	m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.0f, 0.0f, 1.0f);
+	m_pLights[0].m_xmf4Specular = XMFLOAT4(0.5f, 0.5f, 0.5f, 0.0f);
+	m_pLights[0].m_xmf3Position = XMFLOAT3(30.0f, 30.0f, 30.0f);
+	m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
+	m_pLights[1].m_bEnable = true;
+	m_pLights[1].m_nType = SPOT_LIGHT;
+	m_pLights[1].m_fRange = 500.0f;
+	m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
+	m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f);
+	m_pLights[1].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
+	m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
+	m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+	m_pLights[1].m_fFalloff = 8.0f;
+	m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
+	m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+	m_pLights[2].m_bEnable = true;
+	m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
+	m_pLights[2].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
+	m_pLights[2].m_xmf4Specular = XMFLOAT4(0.4f, 0.4f, 0.4f, 0.0f);
+	m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	m_pLights[3].m_bEnable = true;
+	m_pLights[3].m_nType = SPOT_LIGHT;
+	m_pLights[3].m_fRange = 600.0f;
+	m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
+	m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.7f, 0.0f, 1.0f);
+	m_pLights[3].m_xmf4Specular = XMFLOAT4(0.3f, 0.3f, 0.3f, 0.0f);
+	m_pLights[3].m_xmf3Position = XMFLOAT3(50.0f, 30.0f, 30.0f);
+	m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
+	m_pLights[3].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+	m_pLights[3].m_fFalloff = 8.0f;
+	m_pLights[3].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
+	m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
+}
+
+void CScene::AnimateObjects(float fTimeElapsed, CCamera* pCamera)
+{
+	if (pCamera)
+	{
+		XMFLOAT3 xmf3CameraPos = pCamera->GetPosition();
+		m_ppShaders[0]->m_ppGameObject[0]->SetPosition(xmf3CameraPos.x, xmf3CameraPos.y, xmf3CameraPos.z);
+	}
+
+	for (int i = 0; i < m_nShaders; i++) {
+		if (m_ppShaders[i]) {
+			m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+
+			for (int j = 0; j < m_ppShaders[i]->m_nGameObjects; j++)
+				UpdateGameObjectINFO(m_ppShaders[i]->m_ppGameObject[j]);
+		}
+	}
+
+	UpdateGameObjectINFO(m_pPlayer);
+
+	if (m_pLights)
+	{
+		m_pLights[1].m_xmf3Position = m_pPlayer->GetPosition();
+		m_pLights[1].m_xmf3Direction = m_pPlayer->GetLookVector();
+	}
+}
+
+void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature) 
+{
+	ID3D12DescriptorHeap* heaps[] = { m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap };
+	pd3dCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
+	pd3dCommandList->SetGraphicsRootSignature(pd3dGraphicsRootSignature);
+
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pCamera->UpdateShaderVariables(pd3dCommandList);
+
+	UpdateShaderVariables(pd3dCommandList);
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(2, d3dcbLightsGpuVirtualAddress); //Lights
+
+	UpdateGameObjectSRV(pd3dCommandList);
+	BindGameObjectSRV(pd3dCommandList);
+
+	CM->CheckSphereCollision(pd3dCommandList, m_vGameObjects);
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(14, m_pDescriptorHeap->m_d3dGPUBoundingBoxDescriptorHandle); //BoundingBox
+	pd3dCommandList->SetGraphicsRootDescriptorTable(15, m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle); //Sphere
+
+	PerformFrustumCulling(pCamera);
+
+	for (int i = 0; i < m_nShaders; i++) {
+		if (m_ppShaders[i])
+			m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	}
+
+	CM->Render(pd3dCommandList, pCamera);
+}
+
+void CScene::ReleaseObjects()
+{
+	if (m_pDescriptorHeap) delete m_pDescriptorHeap;
+	if (CM) delete CM;
+
+	ReleaseShaderVariables();
+
+	if (m_ppShaders)
+	{
+		for (int i = 0; i < m_nShaders; i++)
+		{
+			m_ppShaders[i]->ReleaseShaderVariables();
+			m_ppShaders[i]->ReleaseObjects();
+			m_ppShaders[i]->Release();
+		}
+		delete[] m_ppShaders;
+	}
+
+	CM->ReleaseObject();
+
+	if (m_pLights) delete[] m_pLights;
+}
+void CScene::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	CM->ReleaseUploadBuffers();
+}
+void CScene::ReleaseShaderVariables()
+{
+	if (m_pd3dcbLights)
+	{
+		m_pd3dcbLights->Unmap(0, NULL);
+		m_pd3dcbLights->Release();
+	}
+
+	for (int i = 0; i < 2; ++i)
+	{
+		if (m_pd3dGameObjects[i])
+		{
+			m_pd3dGameObjects[i]->Unmap(0, NULL);
+			m_pd3dGameObjects[i]->Release();
+		}
+		if (m_pd3dUploadBuffer[i])
+		{
+			m_pd3dUploadBuffer[i]->Unmap(0, NULL);
+			m_pd3dUploadBuffer[i]->Release();
+		}
+
+	}
+
+	m_vGameObjectsInfo.clear();
+	m_vGameObjectsInfo.shrink_to_fit();
+	SRVIndex = 0;
+
+	CM->ReleaseShaderVariables();
+}
+
+//=====[CBV SRV 생성]===============================================
+DescriptorHeap* CScene::m_pDescriptorHeap = NULL;
 
 void CScene::CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews)
 {
@@ -231,7 +423,9 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
+//==================================================================
 
+//=====[힙 업데이트]================================================
 void CScene::AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix, XMFLOAT4X4* parentModelMatrix)
 {
 	if (!gameObject) return;
@@ -319,6 +513,7 @@ void CScene::UpdateGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	m_nCurrentFrameIndex = (m_nCurrentFrameIndex + 1) & 1;
 }
+//==================================================================
 
 void CScene::BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex)
 {
@@ -326,6 +521,7 @@ void CScene::BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT 
 	pd3dCommandList->SetGraphicsRootDescriptorTable(nRootParameterIndex, m_pDescriptorHeap->m_d3dGPUObjectDescriptorHandle[renderFrame]);
 }
 
+//=====[절두체 컬링]================================================
 bool CScene::IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4X4& viewProj)
 {
 	// ViewProjection 행렬에서 평면 추출
@@ -401,3 +597,4 @@ void CScene::PerformFrustumCulling(CCamera* pCamera)
 		obj->m_bVisible = IsInFrustum(objPos, sphere.m_fRadius, viewProj);
 	}
 }
+//==================================================================

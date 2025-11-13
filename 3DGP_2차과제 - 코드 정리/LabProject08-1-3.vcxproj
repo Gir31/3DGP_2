@@ -118,6 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -132,6 +133,7 @@
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="d3dx12.h" />
     <ClInclude Include="DDSTextureLoader12.h" />
+    <ClInclude Include="DescriptorHeap.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameLevelManager.h" />
     <ClInclude Include="LabProject08-1-3.h" />
@@ -152,6 +154,7 @@
     <ClCompile Include="CollisionAlgorithm.cpp" />
     <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="DDSTextureLoader12.cpp" />
+    <ClCompile Include="DescriptorHeap.cpp" />
     <ClCompile Include="GameFramework.cpp" />
     <ClCompile Include="GameLevelManager.cpp" />
     <ClCompile Include="LabProject08-1-3.cpp" />

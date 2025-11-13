@@ -1,28 +1,108 @@
 #include "stdafx.h"
 #include "Object.h"
+#include "Shader.h"
 #include "CollisionManager.h"
 
-CCollisionManager::CCollisionManager()
+CollisionManager::CollisionManager()
 {
 	m_pd3dSphereBuffer = NULL;
 	m_pd3dBoundingBoxBuffer = NULL;
+
+	m_vSphereInfo.clear();
+	m_vBoundingBoxInfo.clear();
 
 	DebugSphereRender = false;
 	DebugBoundingBoxRender = false;
 
 	SST = new SPHERE_SPHERE_TEST();
 	GJK = new GILBERT_JOHNSON_KEERTHI();
+	SAT = new SEPARATING_AXIS_THEOREM();
 }
 
-CCollisionManager::~CCollisionManager()
+CollisionManager::~CollisionManager()
 {
 	if (SST) delete SST;
 	if (GJK) delete GJK;
+	if (SAT) delete SAT;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// [디버깅 렌더링]
+void CollisionManager::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	((CSphereShader*)m_ppDebugShaders[BOUNDING_SPHERE])->m_nSphere = (UINT)m_vSphereInfo.size();
+	((CBoundingBoxShader*)m_ppDebugShaders[BOUNDING_BOX])->m_nBoxes = (UINT)m_vBoundingBoxInfo.size();
+}
+
+void CollisionManager::BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature)
+{
+	CSphereShader* pSphereShader = new CSphereShader();
+	CBoundingBoxShader* pBoundingBoxShader = new CBoundingBoxShader();
+
+	m_nDebugShaders = 2;
+	m_ppDebugShaders = new CShader * [m_nDebugShaders];
+
+	m_ppDebugShaders[BOUNDING_SPHERE] = pSphereShader;
+	m_ppDebugShaders[BOUNDING_BOX] = pBoundingBoxShader;
+
+	for (int i = 0; i < m_nDebugShaders; i++)
+	{
+		m_ppDebugShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
+		m_ppDebugShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
+	}
+}
+
+void CollisionManager::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera)
+{
+	if (m_ppDebugShaders[BOUNDING_SPHERE] && DebugBoundingBoxRender)
+		m_ppDebugShaders[BOUNDING_SPHERE]->Render(pd3dCommandList, pCamera);
+	if (m_ppDebugShaders[BOUNDING_BOX] && DebugSphereRender)
+		m_ppDebugShaders[BOUNDING_BOX]->Render(pd3dCommandList, pCamera);
+}
+
+void CollisionManager::ReleaseObject()
+{
+	if (m_ppDebugShaders)
+	{
+		for (int i = 0; i < m_nDebugShaders; i++)
+		{
+			m_ppDebugShaders[i]->ReleaseShaderVariables();
+			m_ppDebugShaders[i]->ReleaseObjects();
+			m_ppDebugShaders[i]->Release();
+		}
+		delete[] m_ppDebugShaders;
+	}
+}
+
+void CollisionManager::ReleaseUploadBuffers()
+{
+	for (int i = 0; i < m_nDebugShaders; i++) m_ppDebugShaders[i]->ReleaseUploadBuffers();
+}
+
+void CollisionManager::ReleaseShaderVariables()
+{
+	if (m_pd3dSphereBuffer)
+	{
+		m_pd3dSphereBuffer->Unmap(0, NULL);
+		m_pd3dSphereBuffer->Release();
+	}
+
+	if (m_pd3dBoundingBoxBuffer)
+	{
+		m_pd3dBoundingBoxBuffer->Unmap(0, NULL);
+		m_pd3dBoundingBoxBuffer->Release();
+	}
+
+	m_vSphereInfo.clear();
+	m_vSphereInfo.shrink_to_fit();
+
+	m_vBoundingBoxInfo.clear();
+	m_vBoundingBoxInfo.shrink_to_fit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // [충돌 정보 추가]
-void CCollisionManager::AddCollisionInfo(CGameObject& gameObject, XMFLOAT4X4& xmf4x4ModelMatrix, bool Root)
+void CollisionManager::AddCollisionInfo(CGameObject& gameObject, XMFLOAT4X4& xmf4x4ModelMatrix, bool Root)
 {
 	float MaxRadiusSquared = 0.f;
 
@@ -41,7 +121,7 @@ void CCollisionManager::AddCollisionInfo(CGameObject& gameObject, XMFLOAT4X4& xm
 	AddSphere(gameObject, MaxRadiusSquared, Root);
 }
 
-void CCollisionManager::AddSphere(CGameObject& gameObject, float Radius, bool Root)
+void CollisionManager::AddSphere(CGameObject& gameObject, float Radius, bool Root)
 {
 	if (Root)
 	{
@@ -62,7 +142,7 @@ void CCollisionManager::AddSphere(CGameObject& gameObject, float Radius, bool Ro
 	}
 }
 
-void CCollisionManager::AddBoundingBox(const XMFLOAT3& xmf3MeshCenter, const XMFLOAT3& xmf3MeshExtents, const UINT Idx)
+void CollisionManager::AddBoundingBox(const XMFLOAT3& xmf3MeshCenter, const XMFLOAT3& xmf3MeshExtents, const UINT Idx)
 {
 	SRV_BOUNDINGBOX_INFO info = {};
 
@@ -80,13 +160,13 @@ void CCollisionManager::AddBoundingBox(const XMFLOAT3& xmf3MeshCenter, const XMF
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // [충돌 정보 업데이트]
 
-void CCollisionManager::UpdateCollisionSRV(ID3D12GraphicsCommandList* pd3dCommandList)
+void CollisionManager::UpdateCollisionSRV(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	UpdateSphereSRV(pd3dCommandList);
 	UpdateBoundindBoxSRV(pd3dCommandList);
 }
 
-void CCollisionManager::UpdateSphereSRV(ID3D12GraphicsCommandList* pd3dCommandList)
+void CollisionManager::UpdateSphereSRV(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (!m_pd3dSphereBuffer) return;
 	if (m_vSphereInfo.empty()) return;
@@ -103,7 +183,7 @@ void CCollisionManager::UpdateSphereSRV(ID3D12GraphicsCommandList* pd3dCommandLi
 	}
 }
 
-void CCollisionManager::UpdateBoundindBoxSRV(ID3D12GraphicsCommandList* pd3dCommandList)
+void CollisionManager::UpdateBoundindBoxSRV(ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	if (!m_pd3dBoundingBoxBuffer) return;
 	if (m_vSphereInfo.empty()) return;
@@ -122,7 +202,7 @@ void CCollisionManager::UpdateBoundindBoxSRV(ID3D12GraphicsCommandList* pd3dComm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // [기타 정보]
-FLOAT CCollisionManager::CalculateRadiusSquared(const XMFLOAT3& xmf3MeshCenter, const XMFLOAT3& xmf3MeshExtents, const XMFLOAT4X4& xmf4x4Model)
+FLOAT CollisionManager::CalculateRadiusSquared(const XMFLOAT3& xmf3MeshCenter, const XMFLOAT3& xmf3MeshExtents, const XMFLOAT4X4& xmf4x4Model)
 {
 	XMVECTOR vCenter = XMLoadFloat3(&xmf3MeshCenter);
 	XMMATRIX xmModel = XMLoadFloat4x4(&xmf4x4Model);
@@ -141,7 +221,7 @@ FLOAT CCollisionManager::CalculateRadiusSquared(const XMFLOAT3& xmf3MeshCenter, 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // [충돌 체크]
-void CCollisionManager::CheckSphereCollision(ID3D12GraphicsCommandList* pd3dCommandList, std::vector<CGameObject*>& gameObjects)
+void CollisionManager::CheckSphereCollision(ID3D12GraphicsCommandList* pd3dCommandList, std::vector<CGameObject*>& gameObjects)
 {
 	bool update = false;
 	const size_t count = m_vSphereInfo.size();
@@ -188,7 +268,7 @@ void CCollisionManager::CheckSphereCollision(ID3D12GraphicsCommandList* pd3dComm
 	}
 }
 
-void CCollisionManager::CheckOBBCollisionPairs
+void CollisionManager::CheckOBBCollisionPairs
 (ID3D12GraphicsCommandList* pd3dCommandList, 
 	std::vector<CGameObject*>& gameObjects,
 	const std::vector<std::pair<UINT, UINT>>& pairs)
@@ -213,7 +293,7 @@ void CCollisionManager::CheckOBBCollisionPairs
 				const XMFLOAT4X4& worldB = gameObjects[boxB.m_objectIndex]->m_xmf4x4World;
 
 				// 실제 OBB 충돌 검사
-				if (GJK->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA, 
+				if (SAT->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA, 
 					boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB))
 				{
 					m_vBoundingBoxInfo[boundBoxIndexA].m_collision = TRUE;

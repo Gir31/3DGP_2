@@ -191,3 +191,158 @@ XMFLOAT3 GILBERT_JOHNSON_KEERTHI::Support(const OBB& obb, const XMFLOAT3& dir)
 	}
 	return result;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// [SAT 알고리즘]
+
+bool SEPARATING_AXIS_THEOREM::OBBIntersection(const XMFLOAT3& centerA, const XMFLOAT3& extentA, const XMFLOAT4X4& worldA,
+	const XMFLOAT3& centerB, const XMFLOAT3& extentB, const XMFLOAT4X4& worldB)
+{
+	OBB A, B;
+
+	// center
+	A.xmf3Center = Vector3::TransformCoord(centerA, worldA);
+	B.xmf3Center = Vector3::TransformCoord(centerB, worldB);
+
+	// axis
+	A.xmf3Axis[0] = Vector3::Normalize(XMFLOAT3(worldA._11, worldA._12, worldA._13));
+	A.xmf3Axis[1] = Vector3::Normalize(XMFLOAT3(worldA._21, worldA._22, worldA._23));
+	A.xmf3Axis[2] = Vector3::Normalize(XMFLOAT3(worldA._31, worldA._32, worldA._33));
+
+	B.xmf3Axis[0] = Vector3::Normalize(XMFLOAT3(worldB._11, worldB._12, worldB._13));
+	B.xmf3Axis[1] = Vector3::Normalize(XMFLOAT3(worldB._21, worldB._22, worldB._23));
+	B.xmf3Axis[2] = Vector3::Normalize(XMFLOAT3(worldB._31, worldB._32, worldB._33));
+
+	// scale (중요)
+	float A_scaleX = Vector3::Length(XMFLOAT3(worldA._11, worldA._12, worldA._13));
+	float A_scaleY = Vector3::Length(XMFLOAT3(worldA._21, worldA._22, worldA._23));
+	float A_scaleZ = Vector3::Length(XMFLOAT3(worldA._31, worldA._32, worldA._33));
+
+	float B_scaleX = Vector3::Length(XMFLOAT3(worldB._11, worldB._12, worldB._13));
+	float B_scaleY = Vector3::Length(XMFLOAT3(worldB._21, worldB._22, worldB._23));
+	float B_scaleZ = Vector3::Length(XMFLOAT3(worldB._31, worldB._32, worldB._33));
+
+	// extent
+	A.xmf3Extent.x = extentA.x * A_scaleX;
+	A.xmf3Extent.y = extentA.y * A_scaleY;
+	A.xmf3Extent.z = extentA.z * A_scaleZ;
+
+	B.xmf3Extent.x = extentB.x * B_scaleX;
+	B.xmf3Extent.y = extentB.y * B_scaleY;
+	B.xmf3Extent.z = extentB.z * B_scaleZ;
+
+
+	return Intersection(A, B);
+}
+
+bool SEPARATING_AXIS_THEOREM::Intersection(const OBB& A, const OBB& B)
+{
+	// 축을 조금 더 편하게 쓰기 위해 로컬 배열로 복사
+	XMFLOAT3 Aaxis[3] = { A.xmf3Axis[0], A.xmf3Axis[1], A.xmf3Axis[2] };
+	XMFLOAT3 Baxis[3] = { B.xmf3Axis[0], B.xmf3Axis[1], B.xmf3Axis[2] };
+
+	// R[i][j] = A축 i 와 B축 j 의 cos(θ)
+	float R[3][3];
+	float AbsR[3][3];
+
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			R[i][j] = Vector3::DotF3(Aaxis[i], Baxis[j]);
+			AbsR[i][j] = fabsf(R[i][j]) + EPSILON; // float 오차 보정
+		}
+	}
+
+	// B.center - A.center 를 A의 좌표계로 변환
+	XMFLOAT3 tWorld = XMFLOAT3(
+		B.xmf3Center.x - A.xmf3Center.x,
+		B.xmf3Center.y - A.xmf3Center.y,
+		B.xmf3Center.z - A.xmf3Center.z);
+
+	float t[3] = {
+		Vector3::DotF3(tWorld, Aaxis[0]),
+		Vector3::DotF3(tWorld, Aaxis[1]),
+		Vector3::DotF3(tWorld, Aaxis[2])
+	};
+
+	float ra, rb;
+
+	// 1) A의 세 축(A0, A1, A2)에 대한 분리축 검사
+	for (int i = 0; i < 3; ++i)
+	{
+		ra = (&A.xmf3Extent.x)[i];
+		rb =
+			(&B.xmf3Extent.x)[0] * AbsR[i][0] +
+			(&B.xmf3Extent.x)[1] * AbsR[i][1] +
+			(&B.xmf3Extent.x)[2] * AbsR[i][2];
+
+		if (fabsf(t[i]) > ra + rb) return false;
+	}
+
+	// 2) B의 세 축(B0, B1, B2)에 대한 분리축 검사
+	for (int j = 0; j < 3; ++j)
+	{
+		ra =
+			(&A.xmf3Extent.x)[0] * AbsR[0][j] +
+			(&A.xmf3Extent.x)[1] * AbsR[1][j] +
+			(&A.xmf3Extent.x)[2] * AbsR[2][j];
+		rb = (&B.xmf3Extent.x)[j];
+
+		float tProj =
+			t[0] * R[0][j] +
+			t[1] * R[1][j] +
+			t[2] * R[2][j];
+
+		if (fabsf(tProj) > ra + rb) return false;
+	}
+
+	// 3) 9개의 교차축(Ai × Bj)에 대한 검사
+	// A0 x B0
+	ra = (&A.xmf3Extent.x)[1] * AbsR[2][0] + (&A.xmf3Extent.x)[2] * AbsR[1][0];
+	rb = (&B.xmf3Extent.x)[1] * AbsR[0][2] + (&B.xmf3Extent.x)[2] * AbsR[0][1];
+	if (fabsf(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return false;
+
+	// A0 x B1
+	ra = (&A.xmf3Extent.x)[1] * AbsR[2][1] + (&A.xmf3Extent.x)[2] * AbsR[1][1];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[0][2] + (&B.xmf3Extent.x)[2] * AbsR[0][0];
+	if (fabsf(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return false;
+
+	// A0 x B2
+	ra = (&A.xmf3Extent.x)[1] * AbsR[2][2] + (&A.xmf3Extent.x)[2] * AbsR[1][2];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[0][1] + (&B.xmf3Extent.x)[1] * AbsR[0][0];
+	if (fabsf(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return false;
+
+	// A1 x B0
+	ra = (&A.xmf3Extent.x)[0] * AbsR[2][0] + (&A.xmf3Extent.x)[2] * AbsR[0][0];
+	rb = (&B.xmf3Extent.x)[1] * AbsR[1][2] + (&B.xmf3Extent.x)[2] * AbsR[1][1];
+	if (fabsf(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return false;
+
+	// A1 x B1
+	ra = (&A.xmf3Extent.x)[0] * AbsR[2][1] + (&A.xmf3Extent.x)[2] * AbsR[0][1];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[1][2] + (&B.xmf3Extent.x)[2] * AbsR[1][0];
+	if (fabsf(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return false;
+
+	// A1 x B2
+	ra = (&A.xmf3Extent.x)[0] * AbsR[2][2] + (&A.xmf3Extent.x)[2] * AbsR[0][2];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[1][1] + (&B.xmf3Extent.x)[1] * AbsR[1][0];
+	if (fabsf(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return false;
+
+	// A2 x B0
+	ra = (&A.xmf3Extent.x)[0] * AbsR[1][0] + (&A.xmf3Extent.x)[1] * AbsR[0][0];
+	rb = (&B.xmf3Extent.x)[1] * AbsR[2][2] + (&B.xmf3Extent.x)[2] * AbsR[2][1];
+	if (fabsf(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return false;
+
+	// A2 x B1
+	ra = (&A.xmf3Extent.x)[0] * AbsR[1][1] + (&A.xmf3Extent.x)[1] * AbsR[0][1];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[2][2] + (&B.xmf3Extent.x)[2] * AbsR[2][0];
+	if (fabsf(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return false;
+
+	// A2 x B2
+	ra = (&A.xmf3Extent.x)[0] * AbsR[1][2] + (&A.xmf3Extent.x)[1] * AbsR[0][2];
+	rb = (&B.xmf3Extent.x)[0] * AbsR[2][1] + (&B.xmf3Extent.x)[1] * AbsR[2][0];
+	if (fabsf(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return false;
+
+	// 15개 축 전부 통과 → 분리축 없음 → 충돌
+	return true;
+}

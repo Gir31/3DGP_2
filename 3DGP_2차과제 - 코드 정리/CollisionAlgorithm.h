@@ -39,3 +39,15 @@ public:
 	XMFLOAT3 Support(const OBB& obb, const XMFLOAT3& dir);
 	XMFLOAT3 Support(const OBB& A, const OBB& B, const XMFLOAT3& dir);
 };
+
+class SEPARATING_AXIS_THEOREM
+{
+public:
+	SEPARATING_AXIS_THEOREM() {}
+	~SEPARATING_AXIS_THEOREM() {}
+
+public:
+	bool OBBIntersection(const XMFLOAT3& centerA, const XMFLOAT3& extentA, const XMFLOAT4X4& worldA,
+		const XMFLOAT3& centerB, const XMFLOAT3& extentB, const XMFLOAT4X4& worldB);
+	bool Intersection(const OBB& A, const OBB& B);
+};

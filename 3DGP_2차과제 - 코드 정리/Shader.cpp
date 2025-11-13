@@ -506,39 +506,6 @@ void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsComman
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
-
-
-void CObjectsShader::ReleaseObjects()
-{
-	if (m_ppGameObject)
-	{
-		for (int j = 0; j < m_nGameObjects; j++) if (m_ppGameObject[j]) m_ppGameObject[j]->Release();
-		delete[] m_ppGameObject;
-	}
-}
-
-void CObjectsShader::AnimateObjects(float fTimeElapsed)
-{
-	for (int j = 0; j < m_nGameObjects; j++)
-	{
-		if (m_ppGameObject[j])
-		{
-			m_ppGameObject[j]->Animate(fTimeElapsed);
-			m_ppGameObject[j]->UpdateTransform(NULL);
-		}
-	}
-}
-
-void CObjectsShader::ReleaseUploadBuffers()
-{
-	for (int j = 0; j < m_nGameObjects; j++) if (m_ppGameObject[j]) m_ppGameObject[j]->ReleaseUploadBuffers();
-}
-
-void CObjectsShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState)
-{
-	CShader::Render(pd3dCommandList, pCamera, nPipelineState);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CPlayerShader::CPlayerShader()

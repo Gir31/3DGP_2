@@ -108,12 +108,7 @@ public:
 	virtual ~CObjectsShader();
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature *pd3dGraphicsRootSignature, void *pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed);
-	virtual void ReleaseObjects();
 
-	virtual void ReleaseUploadBuffers();
-
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera, int nPipelineState=0);
 
 	int GetNumberOfObjects() { return(m_nGameObjects); }
 
@@ -128,6 +123,15 @@ protected:
 	int								m_xObjects = 0;
 	int								m_yObjects = 0;
 	int								m_zObjects = 0;
+};
+
+class CEnemyShader : public CObjectsShader
+{
+public:
+	CEnemyShader();
+	virtual ~CEnemyShader();
+
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, void* pContext = NULL);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

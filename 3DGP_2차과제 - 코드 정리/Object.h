@@ -258,6 +258,7 @@ public:
 	CGameObject* Clone();
 
 public:
+	UINT m_CollisionGroup = 0;
 	bool m_bVisible = true;
 	std::vector<int> m_vBoundingBoxIndices;
 };

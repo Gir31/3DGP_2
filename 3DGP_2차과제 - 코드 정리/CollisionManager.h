@@ -1,6 +1,23 @@
 #pragma once
 #include "CollisionAlgorithm.h"
 
+#define CG_DYNAMIC (CG_PLAYER | CG_ENEMY | CG_ITEM | CG_PROJECTILE)
+
+enum {
+	BOUNDING_SPHERE,
+	BOUNDING_BOX
+};
+
+enum {
+	CG_NONE			= 0,
+	CG_PLAYER		= 1 << 0,
+	CG_ENEMY		= 1 << 1,
+	CG_ITEM			= 1 << 2,
+	CG_PROJECTILE	= 1 << 3,
+	CG_STATIC		= 1 << 4,
+	CG_IGNORE		= 1 << 5
+};
+
 struct SRV_SPHERE_INFO
 {
 	FLOAT 							m_fRadius;
@@ -16,13 +33,17 @@ struct SRV_BOUNDINGBOX_INFO
 	BOOL							m_collision;
 };
 
-class CCollisionManager
+class CollisionManager
 {
 public:
-	CCollisionManager();
-	~CCollisionManager();
+	CollisionManager();
+	~CollisionManager();
 
 public:
+	//==[디버깅 변수]==============
+	int												m_nDebugShaders = 0;
+	CShader											**m_ppDebugShaders = NULL;
+
 	//==[GPU 리소스]================
 	ID3D12Resource*									m_pd3dSphereBuffer = NULL;
 	ID3D12Resource*									m_pd3dBoundingBoxBuffer = NULL;
@@ -31,15 +52,24 @@ public:
 	std::vector<SRV_SPHERE_INFO>					m_vSphereInfo;
 	std::vector<SRV_BOUNDINGBOX_INFO>				m_vBoundingBoxInfo;
 
-	//==[디버깅 렌더]===============
+	//==[디버깅 렌더 플래그]========
 	bool											DebugSphereRender = false;
 	bool											DebugBoundingBoxRender = false;
 
 	//==[충돌 알고리즘]=============
 	SPHERE_SPHERE_TEST*								SST = NULL;
 	GILBERT_JOHNSON_KEERTHI*						GJK = NULL;
+	SEPARATING_AXIS_THEOREM*						SAT = NULL;
 
 public:
+	//==[디버깅 렌더링]=============
+	void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void BuildObject(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL);
+	void ReleaseObject();
+	void ReleaseUploadBuffers();
+	void ReleaseShaderVariables();
+
 	//==[충돌 정보 추가]============
 	void AddCollisionInfo(CGameObject& gameObject, XMFLOAT4X4& xmf4x4ModelMatrix, bool Root);
 	void AddSphere(CGameObject& gameObject, float Radius, bool Root);

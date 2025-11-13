@@ -799,6 +799,7 @@ void CPointMesh::ReleaseUploadBuffers()
 {
 	CMesh::ReleaseUploadBuffers();
 	if (m_pd3dSizeUploadBuffer) m_pd3dSizeUploadBuffer->Release();
+	if (m_pd3dPositionBuffer) m_pd3dPositionBuffer->Release();
 }
 
 void CPointMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nInstances)

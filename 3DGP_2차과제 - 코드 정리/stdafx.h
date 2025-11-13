@@ -186,6 +186,11 @@ namespace Vector3
 		XMStoreFloat3(&xmf3Result, XMVector3TransformCoord(XMLoadFloat3(&xmf3Vector), XMLoadFloat4x4(&xmmtx4x4Matrix)));
 		return xmf3Result;
 	}
+
+	inline float DotF3(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
+	{
+		return XMVectorGetX(XMVector3Dot(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
+	}
 }
 
 namespace Vector4

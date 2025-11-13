@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "DescriptorHeap.h"
 #include "Shader.h"
 #include "Player.h"
 #include "CollisionManager.h"
@@ -38,26 +39,6 @@ struct LIGHTS
 	int						m_nLights;
 };
 
-
-class CDescriptorHeap
-{
-public:
-	CDescriptorHeap();
-	~CDescriptorHeap();
-
-	ID3D12DescriptorHeap* m_pd3dCbvSrvDescriptorHeap = NULL;
-public:
-	D3D12_CPU_DESCRIPTOR_HANDLE			m_d3dCPUDescriptorHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE			m_d3dGPUDescriptorHandle;
-
-	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUObjectDescriptorHandle[2] = { 0, 0 };
-	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUSphereDescriptorHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE         m_d3dGPUBoundingBoxDescriptorHandle;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle() { return(m_d3dCPUDescriptorHandle); }
-	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle() { return(m_d3dGPUDescriptorHandle); }
-};
-
 class CScene
 {
 public:
@@ -67,49 +48,47 @@ public:
 	virtual bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
 	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
 
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) {}
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList) {}
-	virtual void ReleaseShaderVariables() {}
+	void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
 
-	virtual void BuildDefaultLightsAndMaterials() {}
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
-	virtual void ReleaseObjects() {}
+	void BuildDefaultLightsAndMaterials();
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
 
-	bool ProcessInput(UCHAR *pKeysBuffer) { return(false); }
-	virtual void AnimateObjects(float fTimeElapsed, CCamera* pCamera = NULL) {}
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera=NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
+	bool ProcessInput(UCHAR* pKeysBuffer) { return(false); }
+	void AnimateObjects(float fTimeElapsed, CCamera* pCamera = NULL);
+	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
 
-	virtual void ReleaseUploadBuffers(){}
-
-	CPlayer								*m_pPlayer = NULL;
+	void ReleaseObjects();
+	void ReleaseUploadBuffers();
+	void ReleaseShaderVariables();
 
 public:
-	int									m_nShaders = 0;
-	CShader								**m_ppShaders = NULL;
+	//--[쉐이더 변수]------------------------------------------------------
+	int										m_nShaders = 0;
+	CShader									**m_ppShaders = NULL;
+	//---------------------------------------------------------------------
+	CPlayer* m_pPlayer = NULL;
 
-	int									m_nDebugShaders = 0;
-	CShader								**m_ppDebugShaders = NULL;
+	LIGHT									*m_pLights = NULL;
+	int										m_nLights = 0;
 
-	LIGHT								*m_pLights = NULL;
-	int									m_nLights = 0;
+	XMFLOAT4								m_xmf4GlobalAmbient;
 
-	XMFLOAT4							m_xmf4GlobalAmbient;
-
-	ID3D12Resource						*m_pd3dcbLights = NULL;
-	LIGHTS								*m_pcbMappedLights = NULL;
+	ID3D12Resource							*m_pd3dcbLights = NULL;
+	LIGHTS									*m_pcbMappedLights = NULL;
 
 public:
 	//--[오브젝트 렌더]-----------------------------------------------------
 	// [추가] 더블 버퍼링 멤버
-	ID3D12Resource* m_pd3dGameObjects[2] = { nullptr, nullptr };
-	ID3D12Resource* m_pd3dUploadBuffer[2] = { nullptr, nullptr };
+	ID3D12Resource							*m_pd3dGameObjects[2] = { nullptr, nullptr };
+	ID3D12Resource							*m_pd3dUploadBuffer[2] = { nullptr, nullptr };
 
 	// 현재 프레임 인덱스 (0/1 토글)
 	int                                     m_nCurrentFrameIndex = 0;
 
-	std::vector<CGameObject*>			m_vGameObjects;
-	std::vector<SRV_GAMEOBJECT_INFO>	m_vGameObjectsInfo;
-	UINT								SRVIndex = 0; 
+	std::vector<CGameObject*>				m_vGameObjects;
+	std::vector<SRV_GAMEOBJECT_INFO>		m_vGameObjectsInfo;
+	UINT									SRVIndex = 0; 
 
 	UINT                                    m_nObjNumCached = 0;
 	UINT                                    m_nElemSizeCached = 0;
@@ -121,7 +100,7 @@ public:
 	void BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex = 1);
 	//-----------------------------------------------------------------------
 public:
-	CCollisionManager* CM;
+	CollisionManager* CM;
 
 public:
 	//--[절두체 컬링]--------------------------------------------------------
@@ -129,7 +108,7 @@ public:
 	void PerformFrustumCulling(CCamera* pCamera);
 	//-----------------------------------------------------------------------
 public:
-	static CDescriptorHeap*				m_pDescriptorHeap;
+	static DescriptorHeap*				m_pDescriptorHeap;
 
 	static void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
 	static void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
