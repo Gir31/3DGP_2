@@ -1,0 +1,41 @@
+﻿  Camera.cpp
+  CollisionAlgorithm.cpp
+  CollisionManager.cpp
+  DDSTextureLoader12.cpp
+  GameFramework.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\GameFramework.cpp(422,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameLevelManager.cpp
+  LabProject08-1-3.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\LabProject08-1-3.cpp(83,51): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\LabProject08-1-3.cpp(84,52): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Level.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(160,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(166,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(218,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(238,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(416,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(464,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Level.cpp(483,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  Mesh.cpp
+  Object.cpp
+  Player.cpp
+  Scene.cpp
+  Shader.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(247,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(255,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(263,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(275,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(488,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(515,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(522,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(534,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(827,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\Shader.cpp(917,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  stdafx.cpp
+  Timer.cpp
+  WICTextureLoader12.cpp
+  코드를 생성하고 있습니다.
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 1100 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  LabProject08-1-3.vcxproj -> C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 충돌 클래스 분리\x64\Release\LabProject08-1-3.exe
