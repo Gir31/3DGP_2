@@ -77,6 +77,7 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CPlayerShader* pPlayerShader = new CPlayerShader();
 
 	m_pDescriptorHeap = new DescriptorHeap();
+	CM = new CollisionManager();
 	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3 + 1); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
 
 	BuildDefaultLightsAndMaterials();
@@ -94,6 +95,8 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 		m_ppShaders[i]->CreateShader(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 		m_ppShaders[i]->BuildObjects(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, NULL);
 	}
+
+	CM->BuildObject(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 
 	CAirplanePlayer* pAirplanePlayer = new CAirplanePlayer(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature);
 	pAirplanePlayer->SetPosition(XMFLOAT3(920.0f, 745.0f, 1270.0));

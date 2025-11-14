@@ -793,13 +793,14 @@ CPointMesh::CPointMesh(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3d
 
 CPointMesh::~CPointMesh()
 {
+	if (m_pd3dSizeBuffer) m_pd3dSizeBuffer->Release();
 }
 
 void CPointMesh::ReleaseUploadBuffers()
 {
 	CMesh::ReleaseUploadBuffers();
-	if (m_pd3dSizeUploadBuffer) m_pd3dSizeUploadBuffer->Release();
-	if (m_pd3dPositionBuffer) m_pd3dPositionBuffer->Release();
+
+	//if (m_pd3dSizeUploadBuffer) m_pd3dSizeUploadBuffer->Release();
 }
 
 void CPointMesh::Render(ID3D12GraphicsCommandList* pd3dCommandList, int nSubSet, UINT nInstances)

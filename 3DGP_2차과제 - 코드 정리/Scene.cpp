@@ -153,7 +153,6 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 void CScene::ReleaseObjects()
 {
 	if (m_pDescriptorHeap) delete m_pDescriptorHeap;
-	if (CM) delete CM;
 
 	ReleaseShaderVariables();
 
@@ -167,9 +166,10 @@ void CScene::ReleaseObjects()
 		}
 		delete[] m_ppShaders;
 	}
-
 	CM->ReleaseObject();
+	
 
+	if (CM) delete CM;
 	if (m_pLights) delete[] m_pLights;
 }
 void CScene::ReleaseUploadBuffers()
