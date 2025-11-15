@@ -401,6 +401,7 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	pd3dDevice->CreateShaderResourceView(m_pd3dBillboards, &srvBBDesc, m_pDescriptorHeap->m_d3dCPUDescriptorHandle);
 
+	m_pDescriptorHeap->m_d3dCPUBillboardDescriptorHandle = m_pDescriptorHeap->m_d3dCPUDescriptorHandle;
 	m_pDescriptorHeap->m_d3dGPUBillboardDescriptorHandle = m_pDescriptorHeap->m_d3dGPUDescriptorHandle;
 
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
@@ -453,7 +454,6 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	pd3dDevice->CreateShaderResourceView(CM->m_pd3dSphereBuffer, &srvSphDesc, m_pDescriptorHeap->m_d3dCPUDescriptorHandle);
 
-	m_pDescriptorHeap->m_d3dCPUBillboardDescriptorHandle = m_pDescriptorHeap->m_d3dCPUDescriptorHandle;
 	m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle = m_pDescriptorHeap->m_d3dGPUDescriptorHandle;
 
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;

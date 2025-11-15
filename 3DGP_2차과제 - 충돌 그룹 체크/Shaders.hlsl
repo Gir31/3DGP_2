@@ -434,8 +434,6 @@ void GSSphere(point VS_SPHERE_OUT input[1],
     }
 }
 
-
-
 float4 PSSphere(GS_SPHERE_OUT input) : SV_Target
 {
     if(input.collision)

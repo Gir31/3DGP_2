@@ -107,6 +107,9 @@ void CollisionManager::AddCollisionInfo(CGameObject& gameObject, XMFLOAT4X4& xmf
 {
 	float MaxRadiusSquared = 0.f;
 
+	if (gameObject.m_CollisionGroup & NONE_CHECK)
+		return;
+
 	for (int i = 0; i < gameObject.m_nMeshes; ++i)
 	{
 		if (!gameObject.m_ppMeshes[i]) continue;
@@ -174,7 +177,6 @@ void CollisionManager::UpdateSphereSRV(ID3D12GraphicsCommandList* pd3dCommandLis
 
 	const UINT totalSize = (UINT)(sizeof(SRV_SPHERE_INFO) * m_vSphereInfo.size());
 
-	// Sphere 데이터 다시 Map → 복사 → Unmap
 	SRV_SPHERE_INFO* pMapped = nullptr;
 	HRESULT hr = m_pd3dSphereBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pMapped));
 	if (SUCCEEDED(hr))
@@ -191,7 +193,6 @@ void CollisionManager::UpdateBoundindBoxSRV(ID3D12GraphicsCommandList* pd3dComma
 
 	const UINT totalSize = (UINT)(sizeof(SRV_BOUNDINGBOX_INFO) * m_vBoundingBoxInfo.size());
 
-	// Sphere 데이터 다시 Map → 복사 → Unmap
 	SRV_BOUNDINGBOX_INFO* pMapped = nullptr;
 	HRESULT hr = m_pd3dBoundingBoxBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pMapped));
 	if (SUCCEEDED(hr))
