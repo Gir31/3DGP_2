@@ -324,24 +324,29 @@ void CollisionManager::CheckOBBCollisionPairs
 bool CollisionManager::CheckCollisionGroup(const SRV_BOUNDINGBOX_INFO& boxA, const XMFLOAT4X4& worldA, const UINT& collisionGroupA,
 	const SRV_BOUNDINGBOX_INFO& boxB, const XMFLOAT4X4& worldB, const UINT& collisionGroupB)
 {
-	UINT CollisionGroup = collisionGroupA | collisionGroupB;
+	UINT CollisionPair = MAKE_PAIR(collisionGroupA, collisionGroupB); 
 
-	switch (CollisionGroup)
+	switch (CollisionPair)
 	{
-	case PLAYER_TO_ENEMY:
-		return (GJK->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
-			boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB));
-	case PLAYER_TO_ITEM:
+	case PAIR_PLAYER_STATIC:
 		return false;
-	case PLAYER_TO_PROJECTILE:
-		return (GJK->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
+	case PAIR_PLAYER_ENEMY:
+		return (GJK->OBBIntersection(
+			boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
 			boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB));
-	case ENEMY_TO_ENEMY:
-		/*return (SAT->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
-			boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB));*/
+	case PAIR_PLAYER_ITEM:
 		return false;
-	case ENEMY_TO_PROJECTILE:
-		return (GJK->OBBIntersection(boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
+	case PAIR_PLAYER_PROJECTILE:
+		return (GJK->OBBIntersection(
+			boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
+			boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB));
+	case PAIR_ENEMY_STATIC:
+		return false;
+	case PAIR_ENEMY_ENEMY:
+		return false;
+	case PAIR_ENEMY_PROJECTILE:
+		return (GJK->OBBIntersection(
+			boxA.m_xmf3AABBCenter, boxA.m_xmf3AABBExtents, worldA,
 			boxB.m_xmf3AABBCenter, boxB.m_xmf3AABBExtents, worldB));
 	default:
 		return false;

@@ -123,7 +123,7 @@ void CScene::AnimateObjects(float fTimeElapsed, CCamera* pCamera)
 	}
 }
 
-void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature) 
+void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera, ID3D12RootSignature* pd3dGraphicsRootSignature)
 {
 	ID3D12DescriptorHeap* heaps[] = { m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap };
 	pd3dCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
@@ -140,14 +140,16 @@ void CScene::Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera
 	UpdateGameObjectSRV(pd3dCommandList);
 	BindGameObjectSRV(pd3dCommandList);
 
+	PerformFrustumCulling(pCamera);
 	CM->CheckSphereCollision(pd3dCommandList, m_vGameObjects);
+	UpdateBillboardSRV(pd3dDevice, pd3dCommandList);
+
+	if (m_nShaders > 3)
+		((CBillboardShader*)m_ppShaders[3])->m_nBillboard = (UINT)m_nVisibleBillboard;
 
 	pd3dCommandList->SetGraphicsRootDescriptorTable(14, m_pDescriptorHeap->m_d3dGPUBoundingBoxDescriptorHandle); //BoundingBox
 	pd3dCommandList->SetGraphicsRootDescriptorTable(15, m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle); //Sphere
 	pd3dCommandList->SetGraphicsRootDescriptorTable(16, m_pDescriptorHeap->m_d3dGPUBillboardDescriptorHandle); //Sphere
-
-
-	PerformFrustumCulling(pCamera);
 
 	for (int i = 0; i < m_nShaders; i++) {
 		if (m_ppShaders[i])
@@ -451,6 +453,7 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	pd3dDevice->CreateShaderResourceView(CM->m_pd3dSphereBuffer, &srvSphDesc, m_pDescriptorHeap->m_d3dCPUDescriptorHandle);
 
+	m_pDescriptorHeap->m_d3dCPUBillboardDescriptorHandle = m_pDescriptorHeap->m_d3dCPUDescriptorHandle;
 	m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle = m_pDescriptorHeap->m_d3dGPUDescriptorHandle;
 
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
@@ -577,6 +580,36 @@ void CScene::UpdateGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList)
 
 	m_nCurrentFrameIndex = (m_nCurrentFrameIndex + 1) & 1;
 }
+
+void CScene::UpdateBillboardSRV(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+{
+	if (m_vUploadBillboardInfo.empty()) return;
+
+	const UINT numElements = (UINT)m_nVisibleBillboard;
+	const UINT elementSize = sizeof(SRV_BILLBOARD_INFO);
+	const UINT totalSize = numElements * elementSize;
+
+	SRV_BILLBOARD_INFO* pMapped = nullptr;
+	m_pd3dBillboards->Map(0, nullptr, reinterpret_cast<void**>(&pMapped));
+	memcpy(pMapped, m_vUploadBillboardInfo.data(), totalSize);
+	m_pd3dBillboards->Unmap(0, nullptr);
+
+	// 2) SRV NumElements 업데이트 (가장 중요)
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Buffer.FirstElement = 0;
+	srvDesc.Buffer.NumElements = numElements;         // ★ 업데이트되는 부분
+	srvDesc.Buffer.StructureByteStride = elementSize;
+	srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	pd3dDevice->CreateShaderResourceView(
+		m_pd3dBillboards,
+		&srvDesc,
+		m_pDescriptorHeap->m_d3dCPUBillboardDescriptorHandle // 같은 slot에 덮어쓰기
+	);
+}
 //==================================================================
 
 void CScene::BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex)
@@ -586,43 +619,38 @@ void CScene::BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT 
 }
 
 //=====[절두체 컬링]================================================
-bool CScene::IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4X4& viewProj)
+bool CScene::IsBillboardInFrustum(const SRV_BILLBOARD_INFO& billboard, const XMFLOAT4* planes)
 {
-	// ViewProjection 행렬에서 평면 추출
-	XMMATRIX m = XMLoadFloat4x4(&viewProj);
+	const XMFLOAT3& center = billboard.xmf3Center;
 
-	XMFLOAT4 planes[6];
-	// Left
-	XMStoreFloat4(&planes[0], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[3] + m.r[0].m128_f32[0],
-		m.r[1].m128_f32[3] + m.r[1].m128_f32[0],
-		m.r[2].m128_f32[3] + m.r[2].m128_f32[0],
-		m.r[3].m128_f32[3] + m.r[3].m128_f32[0])));
-	// Right
-	XMStoreFloat4(&planes[1], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[3] - m.r[0].m128_f32[0],
-		m.r[1].m128_f32[3] - m.r[1].m128_f32[0],
-		m.r[2].m128_f32[3] - m.r[2].m128_f32[0],
-		m.r[3].m128_f32[3] - m.r[3].m128_f32[0])));
-	// Top
-	XMStoreFloat4(&planes[2], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[3] - m.r[0].m128_f32[1],
-		m.r[1].m128_f32[3] - m.r[1].m128_f32[1],
-		m.r[2].m128_f32[3] - m.r[2].m128_f32[1],
-		m.r[3].m128_f32[3] - m.r[3].m128_f32[1])));
-	// Bottom
-	XMStoreFloat4(&planes[3], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[3] + m.r[0].m128_f32[1],
-		m.r[1].m128_f32[3] + m.r[1].m128_f32[1],
-		m.r[2].m128_f32[3] + m.r[2].m128_f32[1],
-		m.r[3].m128_f32[3] + m.r[3].m128_f32[1])));
-	// Near
-	XMStoreFloat4(&planes[4], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[2],
-		m.r[1].m128_f32[2],
-		m.r[2].m128_f32[2],
-		m.r[3].m128_f32[2])));
-	// Far
-	XMStoreFloat4(&planes[5], XMPlaneNormalize(XMVectorSet(m.r[0].m128_f32[3] - m.r[0].m128_f32[2],
-		m.r[1].m128_f32[3] - m.r[1].m128_f32[2],
-		m.r[2].m128_f32[3] - m.r[2].m128_f32[2],
-		m.r[3].m128_f32[3] - m.r[3].m128_f32[2])));
+	float radius = max(billboard.xmf2Size.x, billboard.xmf2Size.y) * 0.5f;
 
+#if define FULL_INCLUSION_TEST
+	for (int i = 0; i < 6; ++i)
+	{
+		const XMFLOAT4& p = planes[i];
+		float distance = p.x * center.x + p.y * center.y + p.z * center.z + p.w;
+
+		if (distance < -radius)
+			return false; 
+	}
+#else
+	for (int i = 0; i < 6; ++i)
+	{
+		const XMFLOAT4& p = planes[i];
+		float distance = p.x * center.x + p.y * center.y + p.z * center.z + p.w;
+
+		if (distance <= radius)
+			return false;
+	}
+#endif
+
+	return true;
+}
+
+bool CScene::IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4* planes)
+{
+#if define FULL_INCLUSION_TEST
 	// 부분 내부 판정
 	for (int i = 0; i < 6; ++i)
 	{
@@ -630,14 +658,15 @@ bool CScene::IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4X4&
 		if (distance < -radius)
 			return false;
 	}
-
-	//// 완전 내부 판정
-	//for (int i = 0; i < 6; ++i)
-	//{
-	//	float distance = planes[i].x * center.x + planes[i].y * center.y + planes[i].z * center.z + planes[i].w;
-	//	if (distance <= radius)  // 반지름까지 포함해서 내부에 안 들어가면 제외
-	//		return false;
-	//}
+#else
+	// 완전 내부 판정
+	for (int i = 0; i < 6; ++i)
+	{
+		float distance = planes[i].x * center.x + planes[i].y * center.y + planes[i].z * center.z + planes[i].w;
+		if (distance <= radius)  // 반지름까지 포함해서 내부에 안 들어가면 제외
+			return false;
+	}
+#endif
 
 	return true;
 }
@@ -646,10 +675,45 @@ void CScene::PerformFrustumCulling(CCamera* pCamera)
 {
 	XMMATRIX view = XMLoadFloat4x4(&pCamera->GetViewMatrix());
 	XMMATRIX proj = XMLoadFloat4x4(&pCamera->GetProjectionMatrix());
-	XMMATRIX viewProjMtx = XMMatrixMultiply(view, proj);
+	XMMATRIX xmmViewProj = XMMatrixMultiply(view, proj);
 
-	XMFLOAT4X4 viewProj;
-	XMStoreFloat4x4(&viewProj, viewProjMtx);
+	XMFLOAT4 planes[6];
+	// Left
+	XMStoreFloat4(&planes[0], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[3] + xmmViewProj.r[0].m128_f32[0],
+		xmmViewProj.r[1].m128_f32[3] + xmmViewProj.r[1].m128_f32[0],
+		xmmViewProj.r[2].m128_f32[3] + xmmViewProj.r[2].m128_f32[0],
+		xmmViewProj.r[3].m128_f32[3] + xmmViewProj.r[3].m128_f32[0])));
+	// Right
+	XMStoreFloat4(&planes[1], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[3] - xmmViewProj.r[0].m128_f32[0],
+		xmmViewProj.r[1].m128_f32[3] - xmmViewProj.r[1].m128_f32[0],
+		xmmViewProj.r[2].m128_f32[3] - xmmViewProj.r[2].m128_f32[0],
+		xmmViewProj.r[3].m128_f32[3] - xmmViewProj.r[3].m128_f32[0])));
+	// Top
+	XMStoreFloat4(&planes[2], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[3] - xmmViewProj.r[0].m128_f32[1],
+		xmmViewProj.r[1].m128_f32[3] - xmmViewProj.r[1].m128_f32[1],
+		xmmViewProj.r[2].m128_f32[3] - xmmViewProj.r[2].m128_f32[1],
+		xmmViewProj.r[3].m128_f32[3] - xmmViewProj.r[3].m128_f32[1])));
+	// Bottom
+	XMStoreFloat4(&planes[3], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[3] + xmmViewProj.r[0].m128_f32[1],
+		xmmViewProj.r[1].m128_f32[3] + xmmViewProj.r[1].m128_f32[1],
+		xmmViewProj.r[2].m128_f32[3] + xmmViewProj.r[2].m128_f32[1],
+		xmmViewProj.r[3].m128_f32[3] + xmmViewProj.r[3].m128_f32[1])));
+	// Near
+	XMStoreFloat4(&planes[4], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[2],
+		xmmViewProj.r[1].m128_f32[2],
+		xmmViewProj.r[2].m128_f32[2],
+		xmmViewProj.r[3].m128_f32[2])));
+	// Far
+	XMStoreFloat4(&planes[5], XMPlaneNormalize(XMVectorSet(
+		xmmViewProj.r[0].m128_f32[3] - xmmViewProj.r[0].m128_f32[2],
+		xmmViewProj.r[1].m128_f32[3] - xmmViewProj.r[1].m128_f32[2],
+		xmmViewProj.r[2].m128_f32[3] - xmmViewProj.r[2].m128_f32[2],
+		xmmViewProj.r[3].m128_f32[3] - xmmViewProj.r[3].m128_f32[2])));
 
 
 	for (auto& sphere : CM->m_vSphereInfo) // ← 당신의 SRV_SPHERE_INFO 벡터
@@ -658,7 +722,19 @@ void CScene::PerformFrustumCulling(CCamera* pCamera)
 
 		CGameObject* obj = m_vGameObjects[sphere.m_objectIndex];
 		XMFLOAT3 objPos = obj->GetPosition();
-		obj->m_bVisible = IsInFrustum(objPos, sphere.m_fRadius, viewProj);
+		obj->m_bVisible = IsInFrustum(objPos, sphere.m_fRadius, planes);
+	}
+
+	m_vUploadBillboardInfo.clear();
+	m_nVisibleBillboard = 0;
+
+	for (auto& billboard : m_vBillboardInfo)
+	{
+		if (IsBillboardInFrustum(billboard, planes))
+		{
+			m_vUploadBillboardInfo.emplace_back(billboard);
+			m_nVisibleBillboard++;
+		}
 	}
 }
 //==================================================================

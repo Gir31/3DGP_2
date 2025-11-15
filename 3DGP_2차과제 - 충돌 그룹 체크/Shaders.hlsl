@@ -287,6 +287,7 @@ void GSBillboard(point VS_BILLBOARD_OUT input[1], uint primID : SV_PrimitiveID, 
 {
     float3 vUp = float3(0.f, 1.f, 0.f);
     float3 vLook = gvCameraPosition.xyz - input[0].centerW;
+    vLook.y = 0.0f;
     vLook = normalize(vLook);
 	
     float3 vRight = cross(vUp, vLook);

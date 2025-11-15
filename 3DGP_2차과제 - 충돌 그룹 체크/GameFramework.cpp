@@ -567,7 +567,7 @@ void CGameFramework::FrameAdvance()
 	m_pd3dCommandList->OMSetRenderTargets(1, &d3dRtvCPUDescriptorHandle, TRUE, &d3dDsvCPUDescriptorHandle);
 
 	if (m_pGLM->GetCurrentLevel()) 
-		m_pGLM->GetCurrentLevel()->Render(m_pd3dCommandList, m_pCamera, m_pGLM->GetGraphicsRootSignature());
+		m_pGLM->GetCurrentLevel()->Render(m_pd3dDevice, m_pd3dCommandList, m_pCamera, m_pGLM->GetGraphicsRootSignature());
 
 #ifdef _WITH_PLAYER_TOP
 	m_pd3dCommandList->ClearDepthStencilView(d3dDsvCPUDescriptorHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);

@@ -15,6 +15,8 @@
 #define SPOT_LIGHT			2
 #define DIRECTIONAL_LIGHT	3
 
+#define FULL_INCLUSION_TEST
+
 enum {
 	SKY_BOX_SHADER,
 	TERRAIN_SHADER,
@@ -63,7 +65,7 @@ public:
 
 	bool ProcessInput(UCHAR* pKeysBuffer) { return(false); }
 	void AnimateObjects(float fTimeElapsed, CCamera* pCamera = NULL);
-	void Render(ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
+	void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, CCamera* pCamera = NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL);
 
 	void ReleaseObjects();
 	void ReleaseUploadBuffers();
@@ -105,19 +107,24 @@ public:
 	void AddBillboardInfo();
 	void UpdateGameObjectINFO(CGameObject* gameObject);
 	void UpdateGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList);
+	void UpdateBillboardSRV(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex = 1);
 	//-----------------------------------------------------------------------
 public:
 	ID3D12Resource							*m_pd3dBillboards;
 
+	int m_nVisibleBillboard = 0;
+
 	std::vector<SRV_BILLBOARD_INFO>			m_vBillboardInfo;
+	std::vector<SRV_BILLBOARD_INFO>			m_vUploadBillboardInfo;
 
 public:
 	CollisionManager* CM;
 
 public:
 	//--[절두체 컬링]--------------------------------------------------------
-	bool IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4X4& viewProj);
+	bool IsBillboardInFrustum(const SRV_BILLBOARD_INFO& billboard, const XMFLOAT4* planes);
+	bool IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4* planes);
 	void PerformFrustumCulling(CCamera* pCamera);
 	//-----------------------------------------------------------------------
 public:
