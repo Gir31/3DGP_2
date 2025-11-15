@@ -14,8 +14,8 @@ GameLevelManager::GameLevelManager(ID3D12Device* pd3dDevice)
 		player[i] = CPlayer();
 	}
 
-	levelArray[0] = new MenuLevel();
-	levelArray[1] = new MainLevel();
+	levelArray[0] = new MainLevel();
+	levelArray[1] = new MenuLevel();
 	levelArray[2] = new MainLevel();
 
 	currentLevel = 0;

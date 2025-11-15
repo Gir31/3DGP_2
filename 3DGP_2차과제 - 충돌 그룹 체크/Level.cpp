@@ -75,7 +75,6 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	CBillboardShader* pBillboardShader = new CBillboardShader();
-	CPlayerShader* pPlayerShader = new CPlayerShader();
 
 	m_pDescriptorHeap = new DescriptorHeap();
 	CM = new CollisionManager();
