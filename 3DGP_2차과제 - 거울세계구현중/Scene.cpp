@@ -37,15 +37,15 @@ void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	ui.uiTexturesMask = 0;
 	ui.xmf2Size = XMFLOAT2(0.8f, 0.8f);
-	ui.xmf3Location = XMFLOAT3(0.f, -0.8f, 0.f);
+	ui.xmf3Location = XMFLOAT3(0.f, -0.9f, 0.f);
 
 	m_vUIInfo.emplace_back(ui);
 
 	SRV_UI_INFO ui2 = {};
 
 	ui2.uiTexturesMask = 1;
-	ui2.xmf2Size = XMFLOAT2(1.f, 0.6f);
-	ui2.xmf3Location = XMFLOAT3(0.f, -0.6f, 0.f);
+	ui2.xmf2Size = XMFLOAT2(0.8f, 0.8f);
+	ui2.xmf3Location = XMFLOAT3(0.f, -0.9f, 0.f);
 
 	m_vUIInfo.emplace_back(ui2);
 
