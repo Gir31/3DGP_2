@@ -33,12 +33,28 @@ void CScene::CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsComma
 
 	AddGameObjectInfo(m_pPlayer);
 
+	SRV_UI_INFO ui = {};
+
+	ui.uiTexturesMask = 0;
+	ui.xmf2Size = XMFLOAT2(0.8f, 0.8f);
+	ui.xmf3Location = XMFLOAT3(0.f, -0.8f, 0.f);
+
+	m_vUIInfo.emplace_back(ui);
+
+	SRV_UI_INFO ui2 = {};
+
+	ui2.uiTexturesMask = 1;
+	ui2.xmf2Size = XMFLOAT2(1.f, 0.6f);
+	ui2.xmf3Location = XMFLOAT3(0.f, -0.6f, 0.f);
+
+	m_vUIInfo.emplace_back(ui2);
+
 	if(m_nShaders > 3)
 		((CBillboardShader*)m_ppShaders[3])->m_nBillboard = (UINT)m_vBillboardInfo.size();
 
 	CM->CreateShaderVariables(pd3dDevice, pd3dCommandList);
 
-	CreateShaderResourceView(pd3dDevice, pd3dCommandList);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList);
 }
 
 void CScene::UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList)
@@ -150,6 +166,7 @@ void CScene::Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCom
 	pd3dCommandList->SetGraphicsRootDescriptorTable(14, m_pDescriptorHeap->m_d3dGPUBoundingBoxDescriptorHandle); //BoundingBox
 	pd3dCommandList->SetGraphicsRootDescriptorTable(15, m_pDescriptorHeap->m_d3dGPUSphereDescriptorHandle); //Sphere
 	pd3dCommandList->SetGraphicsRootDescriptorTable(16, m_pDescriptorHeap->m_d3dGPUBillboardDescriptorHandle); //Sphere
+	pd3dCommandList->SetGraphicsRootDescriptorTable(17, m_pDescriptorHeap->m_d3dGPUUIDescriptorHandle); // UI
 
 	for (int i = 0; i < m_nShaders; i++) {
 		if (m_ppShaders[i])
@@ -276,7 +293,6 @@ void CScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pText
 {
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
 	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += (::gnCbvSrvDescriptorIncrementSize * nDescriptorHeapIndex);
-
 	int nTextures = pTexture->GetTextures();
 	for (int i = 0; i < nTextures; i++)
 	{
@@ -324,7 +340,7 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTextu
 	}
 }
 
-void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
+void CScene::CreateShaderResourceViews(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList)
 {
 	const UINT numElements = (UINT)m_vGameObjectsInfo.size();
 	const UINT elementSize = sizeof(SRV_GAMEOBJECT_INFO);
@@ -458,7 +474,34 @@ void CScene::CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCo
 
 	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+
+	///////////////////////////////////////////////////////////////////////////////////
+	// UI Info SRV
+	const UINT numUIElements = (UINT)m_vUIInfo.size();
+	const UINT elementUISize = sizeof(SRV_UI_INFO);
+	const UINT totalUISize = numUIElements * elementUISize;
+
+	m_pd3UIs = ::CreateBufferResource(
+		pd3dDevice, NULL, m_vUIInfo.data(), totalUISize,
+		D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvUIDesc = {};
+	srvUIDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvUIDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvUIDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvUIDesc.Buffer.FirstElement = 0;
+	srvUIDesc.Buffer.NumElements = numUIElements;
+	srvUIDesc.Buffer.StructureByteStride = elementUISize;
+	srvUIDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+
+	pd3dDevice->CreateShaderResourceView(m_pd3UIs, &srvUIDesc, m_pDescriptorHeap->m_d3dCPUDescriptorHandle);
+
+	m_pDescriptorHeap->m_d3dGPUUIDescriptorHandle = m_pDescriptorHeap->m_d3dGPUDescriptorHandle;
+
+	m_pDescriptorHeap->m_d3dCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	m_pDescriptorHeap->m_d3dGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 }
+
 //==================================================================
 
 //=====[힙 업데이트]================================================
@@ -631,8 +674,8 @@ bool CScene::IsBillboardInFrustum(const SRV_BILLBOARD_INFO& billboard, const XMF
 		const XMFLOAT4& p = planes[i];
 		float distance = p.x * center.x + p.y * center.y + p.z * center.z + p.w;
 
-		if (distance < -radius)
-			return false; 
+		if (distance <= radius)
+			return false;
 	}
 #else
 	for (int i = 0; i < 6; ++i)
@@ -640,7 +683,7 @@ bool CScene::IsBillboardInFrustum(const SRV_BILLBOARD_INFO& billboard, const XMF
 		const XMFLOAT4& p = planes[i];
 		float distance = p.x * center.x + p.y * center.y + p.z * center.z + p.w;
 
-		if (distance <= radius)
+		if (distance < -radius)
 			return false;
 	}
 #endif
@@ -651,19 +694,19 @@ bool CScene::IsBillboardInFrustum(const SRV_BILLBOARD_INFO& billboard, const XMF
 bool CScene::IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4* planes)
 {
 #if define FULL_INCLUSION_TEST
-	// 부분 내부 판정
-	for (int i = 0; i < 6; ++i)
-	{
-		float distance = planes[i].x * center.x + planes[i].y * center.y + planes[i].z * center.z + planes[i].w;
-		if (distance < -radius)
-			return false;
-	}
-#else
 	// 완전 내부 판정
 	for (int i = 0; i < 6; ++i)
 	{
 		float distance = planes[i].x * center.x + planes[i].y * center.y + planes[i].z * center.z + planes[i].w;
 		if (distance <= radius)  // 반지름까지 포함해서 내부에 안 들어가면 제외
+			return false;
+	}
+#else
+	// 부분 내부 판정
+	for (int i = 0; i < 6; ++i)
+	{
+		float distance = planes[i].x * center.x + planes[i].y * center.y + planes[i].z * center.z + planes[i].w;
+		if (distance < -radius)
 			return false;
 	}
 #endif

@@ -15,13 +15,14 @@
 #define SPOT_LIGHT			2
 #define DIRECTIONAL_LIGHT	3
 
-#define FULL_INCLUSION_TEST
+//#define FULL_INCLUSION_TEST
 
 enum {
 	SKY_BOX_SHADER,
 	TERRAIN_SHADER,
 	ENEMY_SHADER,
-	BILLBOARD_SHADER
+	BILLBOARD_SHADER,
+	UI_SHADER
 };
 
 struct LIGHT
@@ -54,6 +55,7 @@ public:
 	CScene() { }
 	~CScene() { }
 
+public:
 	virtual bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
 	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
 
@@ -72,31 +74,32 @@ public:
 	void ReleaseShaderVariables();
 
 public:
-	//--[쉐이더 변수]------------------------------------------------------
-	int										m_nShaders = 0;
-	CShader									**m_ppShaders = NULL;
-	//---------------------------------------------------------------------
-	CPlayer* m_pPlayer = NULL;
+	ID3D12Resource* m_pd3dcbLights = NULL;
+	ID3D12Resource* m_pd3dGameObjects[2] = { nullptr, nullptr };
+	ID3D12Resource* m_pd3dUploadBuffer[2] = { nullptr, nullptr };
+	ID3D12Resource* m_pd3dBillboards;
+	ID3D12Resource* m_pd3UIs;
 
-	LIGHT									*m_pLights = NULL;
-	int										m_nLights = 0;
-
-	XMFLOAT4								m_xmf4GlobalAmbient;
-
-	ID3D12Resource							*m_pd3dcbLights = NULL;
-	LIGHTS									*m_pcbMappedLights = NULL;
-
-public:
-	//--[오브젝트 렌더]-----------------------------------------------------
-	// [추가] 더블 버퍼링 멤버
-	ID3D12Resource							*m_pd3dGameObjects[2] = { nullptr, nullptr };
-	ID3D12Resource							*m_pd3dUploadBuffer[2] = { nullptr, nullptr };
-
-	// 현재 프레임 인덱스 (0/1 토글)
-	int                                     m_nCurrentFrameIndex = 0;
-
+	LIGHTS* m_pcbMappedLights = NULL;
+	LIGHT* m_pLights = NULL;
 	std::vector<CGameObject*>				m_vGameObjects;
 	std::vector<SRV_GAMEOBJECT_INFO>		m_vGameObjectsInfo;
+	std::vector<SRV_BILLBOARD_INFO>			m_vBillboardInfo;
+	std::vector<SRV_BILLBOARD_INFO>			m_vUploadBillboardInfo;
+	std::vector<SRV_UI_INFO>				m_vUIInfo;
+
+	int										m_nShaders = 0;
+	int										m_nLights = 0;
+	int										m_nVisibleBillboard = 0;
+	int                                     m_nCurrentFrameIndex = 0;
+
+	CShader									**m_ppShaders = NULL;
+	CPlayer* m_pPlayer = NULL;
+
+	CollisionManager* CM;
+
+	XMFLOAT4								m_xmf4GlobalAmbient;
+public:
 	UINT									SRVIndex = 0; 
 
 	UINT                                    m_nObjNumCached = 0;
@@ -109,17 +112,6 @@ public:
 	void UpdateGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList);
 	void UpdateBillboardSRV(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	void BindGameObjectSRV(ID3D12GraphicsCommandList* pd3dCommandList, UINT nRootParameterIndex = 1);
-	//-----------------------------------------------------------------------
-public:
-	ID3D12Resource							*m_pd3dBillboards;
-
-	int m_nVisibleBillboard = 0;
-
-	std::vector<SRV_BILLBOARD_INFO>			m_vBillboardInfo;
-	std::vector<SRV_BILLBOARD_INFO>			m_vUploadBillboardInfo;
-
-public:
-	CollisionManager* CM;
 
 public:
 	//--[절두체 컬링]--------------------------------------------------------
@@ -137,7 +129,7 @@ public:
 	static void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
 	static void CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex, UINT nRootParameterStartIndex);
 	static void CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex);
-	void CreateShaderResourceView(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 
 	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
 	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandleForHeapStart() { return(m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); }

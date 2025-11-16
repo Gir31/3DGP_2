@@ -15,7 +15,7 @@ void MenuLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	m_pDescriptorHeap = new DescriptorHeap();
 	CM = new CollisionManager();
-	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3 + 1); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
+	CreateCbvSrvDescriptorHeaps(pd3dDevice, 0, 17 + 50 + 1 + 1 + 3 + 1 +5); //SuperCobra(17), Gunship(2), Player(1), Skybox(1), Terrain(3)
 
 	BuildDefaultLightsAndMaterials();
 
@@ -75,6 +75,7 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 	CSkyBoxShader* pSkyBoxShader = new CSkyBoxShader();
 	CTerrainShader* pTerrainShader = new CTerrainShader();
 	CBillboardShader* pBillboardShader = new CBillboardShader();
+	CUIShader* pUIShader = new CUIShader();
 
 	m_pDescriptorHeap = new DescriptorHeap();
 	CM = new CollisionManager();
@@ -82,13 +83,14 @@ void MainLevel::BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList
 
 	BuildDefaultLightsAndMaterials();
 
-	m_nShaders = 4;
+	m_nShaders = 5;
 	m_ppShaders = new CShader * [m_nShaders];
 
 	m_ppShaders[SKY_BOX_SHADER] = pSkyBoxShader;
 	m_ppShaders[TERRAIN_SHADER] = pTerrainShader;
 	m_ppShaders[ENEMY_SHADER] = pObjectsShader;
 	m_ppShaders[BILLBOARD_SHADER] = pBillboardShader;
+	m_ppShaders[UI_SHADER] = pUIShader;
 
 	for (int i = 0; i < m_nShaders; i++)
 	{

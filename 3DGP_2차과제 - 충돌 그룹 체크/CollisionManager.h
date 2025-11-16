@@ -21,7 +21,6 @@ enum {
 };
 
 
-
 struct SRV_SPHERE_INFO
 {
 	FLOAT 							m_fRadius;
