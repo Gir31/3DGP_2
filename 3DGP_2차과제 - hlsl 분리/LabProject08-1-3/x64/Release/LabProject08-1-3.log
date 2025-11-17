@@ -1,0 +1,41 @@
+﻿  Camera.cpp
+  CollisionAlgorithm.cpp
+  CollisionManager.cpp
+  DDSTextureLoader12.cpp
+  DescriptorHeap.cpp
+  GameFramework.cpp
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\GameFramework.cpp(422,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  GameLevelManager.cpp
+  LabProject08-1-3.cpp
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\LabProject08-1-3.cpp(83,51): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\LabProject08-1-3.cpp(84,52): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Level.cpp
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Level.cpp(60,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Level.cpp(126,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+  Mesh.cpp
+  Object.cpp
+  Player.cpp
+  Scene.cpp
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Scene.cpp(24,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Scene.cpp(30,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Scene.cpp(128,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Scene.cpp(671,12): warning C4067: 전처리기 지시문 다음에 예기치 않은 토큰이 있습니다. 줄 바꿈 문자가 필요합니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Scene.cpp(696,12): warning C4067: 전처리기 지시문 다음에 예기치 않은 토큰이 있습니다. 줄 바꿈 문자가 필요합니다.
+  Shader.cpp
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(247,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(255,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(263,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(275,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(489,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(557,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(790,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(881,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\Shader.cpp(972,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  stdafx.cpp
+  Timer.cpp
+  WICTextureLoader12.cpp
+  코드를 생성하고 있습니다.
+  Previous IPDB was built with incompatible compiler, fall back to full compilation.
+  All 1202 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  LabProject08-1-3.vcxproj -> C:\Users\rpg26\OneDrive\Desktop\3DGP_2차과제 - 코드 최적화\x64\Release\LabProject08-1-3.exe
