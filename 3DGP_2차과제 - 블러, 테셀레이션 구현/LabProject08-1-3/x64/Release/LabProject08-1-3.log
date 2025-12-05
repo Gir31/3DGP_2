@@ -1,0 +1,45 @@
+﻿  CollisionManager.cpp
+  GameFramework.cpp
+  GameLevelManager.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\GameFramework.cpp(417,35): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  LabProject08-1-3.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\LabProject08-1-3.cpp(83,51): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\LabProject08-1-3.cpp(84,52): warning C4244: '=': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Level.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(20,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(26,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(141,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(167,53): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(241,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(247,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(401,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(427,53): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Level.cpp(438,62): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Object.cpp
+  Player.cpp
+  Scene.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(24,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(30,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(140,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(474,26): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(481,25): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(487,30): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(493,25): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(500,18): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Scene.cpp(507,18): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Shader.cpp
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(264,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(272,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(280,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(292,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(636,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(664,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(996,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(1089,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\Shader.cpp(1182,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  코드를 생성하고 있습니다.
+  0 of 1279 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  코드를 생성했습니다.
+  LabProject08-1-3.vcxproj -> C:\Users\82102\Desktop\학교\3DGP_2\3DGP_2\3DGP_2차과제 - 거울 구현 및 부분적 OM 블렌딩\x64\Release\LabProject08-1-3.exe

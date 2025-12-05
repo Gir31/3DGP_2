@@ -1,0 +1,168 @@
+//-----------------------------------------------------------------------------
+// File: Scene.h
+//-----------------------------------------------------------------------------
+
+#pragma once
+
+#include "DescriptorHeap.h"
+#include "Shader.h"
+#include "Player.h"
+#include "CollisionManager.h"
+
+#define MAX_LIGHTS			16 
+
+#define POINT_LIGHT			1
+#define SPOT_LIGHT			2
+#define DIRECTIONAL_LIGHT	3
+
+//#define FULL_INCLUSION_TEST
+
+enum {
+	SKY_BOX_SHADER,
+	TERRAIN_SHADER,
+	ENEMY_SHADER,
+	BILLBOARD_SHADER,
+	MIRROR_SHADER
+};
+
+struct LIGHT
+{
+	XMFLOAT4				m_xmf4Ambient;
+	XMFLOAT4				m_xmf4Diffuse;
+	XMFLOAT4				m_xmf4Specular;
+	XMFLOAT3				m_xmf3Position;
+	float 					m_fFalloff;
+	XMFLOAT3				m_xmf3Direction;
+	float 					m_fTheta; //cos(m_fTheta)
+	XMFLOAT3				m_xmf3Attenuation;
+	float					m_fPhi; //cos(m_fPhi)
+	bool					m_bEnable;
+	int						m_nType;
+	float					m_fRange;
+	float					padding;
+};
+
+struct LIGHTS
+{
+	LIGHT					m_pLights[MAX_LIGHTS];
+	XMFLOAT4				m_xmf4GlobalAmbient;
+	int						m_nLights;
+};
+
+class CScene
+{
+public:
+	CScene() { }
+	~CScene() { }
+
+public:
+	virtual bool OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
+	virtual bool OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam) { return false; }
+
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void BuildDefaultLightsAndMaterials();
+	virtual void BuildObjects(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL) {}
+
+	bool ProcessInput(UCHAR* pKeysBuffer) { return(false); }
+	void AnimateObjects(float fTimeElapsed, CCamera* pCamera = NULL);
+	virtual void Render(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, 
+		CCamera* pCamera = NULL, ID3D12RootSignature* pd3dGraphicsRootSignature = NULL,
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = D3D12_CPU_DESCRIPTOR_HANDLE{});
+
+	void ReleaseObjects();
+	void ReleaseUploadBuffers();
+	void ReleaseShaderVariables();
+
+public:
+	ID3D12Resource* m_pd3dcbLights = NULL;
+
+	//Default
+	ID3D12Resource* m_pObjectDefault = nullptr; // DEFAULT heap
+	ID3D12Resource* m_pBillboardsDefault = nullptr;
+	ID3D12Resource* m_pUIDefault = nullptr;
+	ID3D12Resource* m_pMirrorDefault = nullptr;
+
+
+	//Upload
+	ID3D12Resource* m_pObjectUpload = nullptr; // UPLOAD heap
+	ID3D12Resource* m_pBillboardsUpload = nullptr;
+	ID3D12Resource* m_pUIUpload = nullptr;
+	ID3D12Resource* m_pMirrorUpload = nullptr;
+
+
+	LIGHTS* m_pcbMappedLights = NULL;
+	LIGHT* m_pLights = NULL;
+	std::vector<SRV_RECT_INFO>				m_vMirror;
+	std::vector<CGameObject*>				m_vGameObjects;
+	std::vector<SRV_GAMEOBJECT_INFO>		m_vGameObjectsInfo;
+	std::vector<SRV_RECT_INFO>				m_vBillboardInfo;
+	std::vector<SRV_RECT_INFO>				m_vUploadBillboardInfo;
+	std::vector<SRV_UI_INFO>				m_vUIInfo;
+
+	int										m_nShaders = 0;
+	int										m_nLights = 0;
+	int										m_nVisibleBillboard = 0;
+
+	CShader									**m_ppShaders = NULL;
+	CShader* m_pUIShader = NULL;
+
+
+	
+
+	CPlayer* m_pPlayer = NULL;
+
+	CollisionManager* CM;
+
+	XMFLOAT4								m_xmf4GlobalAmbient;
+public:
+	UINT									SRVIndex = 0; 
+
+	void AddGameObjectInfo(CGameObject* gameObject, XMFLOAT4X4* parentMatrix = NULL, XMFLOAT4X4* parentModelMatrix = NULL);
+	void AddBillboardInfo();
+	void UpdateGameObjectINFO(CGameObject* gameObject);
+
+	void UpdateSRV(
+		ID3D12Device* pd3dDevice,
+		ID3D12GraphicsCommandList* pd3dCommandList,
+		void* srvData,
+		UINT numElements,
+		UINT elementSize,
+		ID3D12Resource*& defaultBuffer,
+		ID3D12Resource*& uploadBuffer
+	);
+
+	void ComputeMirrorReflectionCamera(CCamera* pMainCamera, CCamera* pReflectionCamera);
+public:
+	//--[절두체 컬링]--------------------------------------------------------
+	bool IsBillboardInFrustum(const SRV_RECT_INFO& billboard, const XMFLOAT4* planes);
+	bool IsInFrustum(const XMFLOAT3& center, float radius, const XMFLOAT4* planes);
+	void PerformFrustumCulling(CCamera* pCamera);
+	//-----------------------------------------------------------------------
+public:
+	static DescriptorHeap*				m_pDescriptorHeap;
+
+	static void CreateCbvSrvDescriptorHeaps(ID3D12Device* pd3dDevice, int nConstantBufferViews, int nShaderResourceViews);
+	static void CreateConstantBufferViews(ID3D12Device* pd3dDevice, int nConstantBufferViews, ID3D12Resource* pd3dConstantBuffers, UINT nStride);
+	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferView(ID3D12Device* pd3dDevice, ID3D12Resource* pd3dConstantBuffer, UINT nStride);
+	static D3D12_GPU_DESCRIPTOR_HANDLE CreateConstantBufferView(ID3D12Device* pd3dDevice, D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress, UINT nStride);
+	static void CreateShaderResourceViews(ID3D12Device* pd3dDevice, CTexture* pTexture, UINT nDescriptorHeapIndex, UINT nRootParameterStartIndex);
+	static void CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex, UINT nRootParameterStartIndex);
+	static void CreateShaderResourceView(ID3D12Device* pd3dDevice, CTexture* pTexture, int nIndex);
+	void CreateShaderResourceViews(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+
+	void CreateSRV(
+		ID3D12Device* pd3dDevice, 
+		ID3D12GraphicsCommandList* pd3dCommandList,
+		void* srvData,
+		UINT numElements,
+		UINT elementSize,
+		ID3D12Resource*& defaultBuffer,
+		ID3D12Resource*& uploadBuffer,
+		D3D12_GPU_DESCRIPTOR_HANDLE& m_pGpu
+		);
+
+	static D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandleForHeapStart() { return(m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()); }
+	static D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandleForHeapStart() { return(m_pDescriptorHeap->m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); }
+};
